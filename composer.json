@@ -1,0 +1,20 @@
+{
+    "name": "gesimatic/login-attempts",
+    "description": "Gesimatic-Login-attempts - Gesimatic module/plugin  to protect login access by limiting attempts",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Carmelo Andrés",
+            "email": "info@carmeloandres.com",
+            "homepage": "https://carmeloandres.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+     "autoload": {
+        "psr-4": {
+            "GesimaticLoginAttempts\\": "includes/"
+        }
+    }
+}
