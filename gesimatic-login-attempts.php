@@ -42,4 +42,7 @@ if (!defined('GESIMATIC_LOADED')) {
 require_once GESIMATIC_LOGIN_ATTEMPTS_PATH . 'vendor/autoload.php';
 
 // Load plugin core logic
-$gesimatic_login_attempts = new GesimaticLoginAttempts\Core\Core();
+$gesimatic_login_attempts = new \GesimaticLoginAttempts\Core\Core();
+
+// activate the plugin
+register_activation_hook(__FILE__,[\GesimaticLoginAttempts\Core\Setup::class, 'activate']);
