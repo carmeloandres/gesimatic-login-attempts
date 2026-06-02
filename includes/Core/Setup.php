@@ -23,7 +23,7 @@ class Setup {
      * @var string
      * @since 1
      */
-    protected const OPTION_BLOQUED_IPS = 'gesimatic_login_attempts_bloqued_ips';
+    protected const OPTION_BLOCKED_IPS = 'gesimatic_login_attempts_bloqued_ips';
    
      /**
      * Option key in the database to store the bloqued IPs data.
@@ -31,6 +31,14 @@ class Setup {
      * @since 1
      */
     protected const OPTION_SETTINGS = 'gesimatic_login_attempts_settings';
+
+     /**
+     * Spotlight to use when quering option blocked ips
+     * @var string
+     * @since 1
+     */
+    protected const SPOTLIGHT_QUERING_BLOCKED_IPS = 'gesimatic_login_attempts_quering_bloqued_ips_spotlight';
+
 
     /**
      * Number of items per page in a paged query.
@@ -80,7 +88,7 @@ class Setup {
         self::create_option_settings();
 
         // create the bloqued_ips option
-//		update_option(OPTION_BLOQUED_IPS,array());
+//		update_option(OPTION_BLOCKED_IPS,array());
 
      }
     
@@ -99,7 +107,7 @@ class Setup {
 
         delete_option(self::OPTION_SETTINGS);
 
-        delete_option(self::OPTION_BLOQUED_IPS); 
+        delete_option(self::OPTION_BLOCKED_IPS); 
      }
 
 
@@ -173,6 +181,18 @@ class Setup {
     function unlock_ip($ip){
         global $wpdb;
 
+        // spotlight to checks if the are queries of the option in process
+        $lock_time = 30; // Maximun time of bloqued in seconds
+        $retry_delay = 1; // Seconds to retry the query
+
+        // wait until the transient expires or is deleted
+        while (get_transient(SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
+            sleep($retry_delay);
+        }
+
+        // set the spotlight to disabling the access to the option
+        set_transient(SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
+
         $query = "SELECT * FROM ".self::$table_name_status_ip." WHERE ip = '".$ip."'";
 
         $status = $wpdb->get_row($query,ARRAY_A);
@@ -187,13 +207,16 @@ class Setup {
                 $result = true;
         } else $result = false;
 
+        // delete the spotlight to enabling the access to the option
+        delete_transient(SPOTLIGHT_QUERING_BLOCKED_IPS);
+
         return $result;
     }
 
     /**
      * Method reload_bloqued_ips
      * 
-     * This method updates the option gsmtc_bloqued_ips from table login_status_ip and check if all bloqued ips are still bloked.
+     * This method updates the option gsmtc_bloqued_ips from table login_status_ip and check if all bloqued ips are still blocked.
      * 
      * @params void
      * @return void
@@ -202,17 +225,16 @@ class Setup {
         global $wpdb;
 
         // spotlight to checks if the are queries of the option in process
-        $spotlight = 'gesimatic_login_attempts_failed_spotlight';
         $lock_time = 30; // Maximun time of bloqued in seconds
         $retry_delay = 1; // Seconds to retry the query
 
         // wait until the transient expires or is deleted
-        while (get_transient($spotlight) == 'true'){
+        while (get_transient(SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
             sleep($retry_delay);
         }
 
         // set the spotlight to disabling the access to the option
-        set_transient($spotlight,'true',$lock_time);
+        set_transient(SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
 
         $query = "SELECT * FROM ".self::$table_name_status_ip." WHERE status = 'bloqued'";
         $results = $wpdb->get_results($query,ARRAY_A);
@@ -232,10 +254,10 @@ class Setup {
             }
         }
         // create the gsmtc_bloqued_ips
-		update_option(OPTION_BLOQUED_IPS,$bloquedIps);
+		update_option(OPTION_BLOCKED_IPS,$bloquedIps);
 
         // delete the spotlight to enabling the access to the option
-        delete_transient($spotlight);
+        delete_transient(SPOTLIGHT_QUERING_BLOCKED_IPS);
     
     }
 
