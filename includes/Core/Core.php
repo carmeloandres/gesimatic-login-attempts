@@ -32,8 +32,87 @@ class Core extends Setup{
         // update ip status in the database
         add_action('wp_login_failed', array($this,'login_failed'),10,2);
 
+        // Custom the error message
+        add_filter('login_errors',array($this,'login_errors_message'),10,1);
+
+        // Resets the login_status_ip and update the loged_ip table
+        add_action('wp_login',array($this,'loged_ip'),10,2);
 
     }
+
+    /**
+     * Resets an ip, it means tha the ip is erased in table table_name_login_status_ip
+     * and update the last loged date ip.
+     * 
+     * @param string $user_login the username of the loged user.
+     * @param WP_User $user, the user information object
+     *
+     * @return void 
+     */
+    function loged_ip($user_login, $user){
+        global $wpdb;
+
+        $options = get_option(OPTION_SETTINGS,array());
+        
+        if (isset($options['enabled']) && ($options['enabled'] == true) && isset($options['logedInAlert']) && ($options['logedInAlert'] == true)){            
+            
+            $ip = Security::get_client_ip();
+            
+            // Reset ipStatus
+            $wpdb->delete(self::$table_name_login_status_ip,array('ip' => $ip));
+
+            if(isset($user->roles) && isset($options['triggerRoles']) ){
+
+                $send_email = false;
+                foreach( $user->roles as $user_role)
+                    if(in_array($user_role,$options['triggerRoles'])){
+                        $send_email = true;
+                    }
+                // if role is enabled to recibe alarms
+                if($send_email){
+        
+                    // Create the email alarm
+                    $subject = __('Access notification from','gesimatic-login-attempts').' '.$ip.' IP';
+        
+                    $body_title =__('Access notification','gesimatic-login-attempts');
+                    $body_content=__('Loged as','gesimatic-login-attempts').' '.$user_login.' '.__('user, from IP:','gesimatic-login-attempts').' '.$ip.PHP_EOL;
+                    $body_content.= __('This user is','gesimatic-login-attempts').' :'.translate_user_role($user_role);
+
+                    $this->send_formated_html_email_to_user($user->data->user_email,$subject, $body_title, $body_content);
+
+                }
+            }
+        }
+    }
+
+    /**
+     * This method customize the error login message.
+     * 
+     * @param string the original errors message 
+     * 
+     * @return string the updated errors message
+     */
+    function login_errors_message($errors): string{
+
+        $options = get_option(OPTION_SETTINGS);
+
+        if ($options['enabled'] == true){
+
+            $ip = Security::get_client_ip();
+            $status = $this->get_ip_status($ip);
+
+            // if is not bloqued send the remain attempts
+            if(intval($status['attempts']) % intval($options['attempts']) != 0){ 
+
+                $rest_attempts =intval($options['attempts']) - (intval($status['attempts']) % intval($options['attempts']));
+        
+                $errors =  __('Access is protected by limiting the maximun number of failed attempts, you are left','gesimatic');
+                $errors .= ' <strong>'.$rest_attempts.'</strong> '.__('attempts','gesimatic');
+            }
+        }
+        return $errors;
+    }
+
 
     /**
      * This method checks if the ip is valid.
@@ -340,6 +419,108 @@ class Core extends Setup{
             return true;
         else return false;
     }
+
+     /**
+     * Send a formated html email to user with an advanced HTML template to a user_email.
+     *
+     * This function sends a fotmated email in an html template to the user_email with the $body_title and $body_content
+     *
+     * @param string $user_email The email to send informatios.
+     * @param string $subject The subject of the email.
+     * @param string $body_title The main title of the email body. 
+     * @param string $body_content The main content of the email body.
+     * 
+     * @return void
+     */
+    function send_formated_html_email_to_user($user_email,$subject, $body_title, $body_content) {
+
+        // Email headers
+        $headers = array('Content-Type: text/html; charset=UTF-8');
+
+        // HTML Email template
+        $email_template = '
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        background-color: #f9f9f9;
+                        margin: 0;
+                        padding: 20px;
+                    }
+                    .email-container {
+                        background-color: #ffffff;
+                        max-width: 600px;
+                        margin: 20px auto;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                    }
+                    .email-header {
+                        background-color: #2f4f80;
+                        color: #ffffff;
+                        padding: 10px;
+                        text-align: center;
+                        border-radius: 8px 8px 0 0;
+                    }
+                    .email-body {
+                        padding: 20px;
+                        color: #000000;
+                        line-height: 1.6;
+                    }
+                    .email-footer {
+                        margin-top: 20px;
+                        font-size: 12px;
+                        color: #777777;
+                        text-align: center;
+                    }
+                    .button {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        margin-top: 20px;
+                        background-color: #2f4f80;
+                        color: #ffffff;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+                    .email-body a {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        margin-top: 20px;
+                        background-color: #2f4f80;
+                        color: #ffffff;
+                        text-decoration: none;
+                        border-radius: 5px;
+                    }
+                    .button:hover {
+                        background-color: #005a87;
+                    }
+                    .gsmtc-footer a {
+                        text-decoration: none;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="email-container">
+                    <div class="email-header">
+                        <h1>'.$body_title.'</h1>
+                    </div>
+                    <div class="email-body">
+                        <p>' . nl2br($body_content) . '</p>
+                        <a href="' . home_url() . '">Visit Site</a>
+                    </div>
+                    <div class="email-footer">
+                        <p>This email was sent from your WordPress site: ' . get_bloginfo('name') . '</p>
+                        <p class="gsmtc-footer">' . get_bloginfo('url') . '</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ';
+
+        return wp_mail($user_email, $subject, $email_template, $headers);
+    }
+
 
 
 }
