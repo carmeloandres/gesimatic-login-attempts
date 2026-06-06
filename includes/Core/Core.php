@@ -38,6 +38,14 @@ class Core extends Setup{
         // Resets the login_status_ip and update the loged_ip table
         add_action('wp_login',array($this,'loged_ip'),10,2);
 
+        // adding the login attempts to gesimatic admin page
+        add_filter( 'gesimatic_admin_tabs', function( $tabs ) {
+                error_log ('GesimaticLoginAttempts filter:gesimatic_admin_tabs, $tabs: '.var_export($tabs,true));
+                $tabs['gesimatic-login-attempts'] = esc_html__( 'Login attempts', 'gesimatic-login-attempts' );
+            return $tabs;
+        });
+
+
     }
 
     /**
