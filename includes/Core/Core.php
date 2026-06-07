@@ -2,6 +2,7 @@
 
 namespace GesimaticLoginAttempts\Core;
 
+use GesimaticLoginAttempts\Admin\Admin;
 use GesimaticLoginAttempts\Core\Setup;
 use GesimaticLoginAttempts\Security\Security;
 
@@ -13,6 +14,14 @@ use GesimaticLoginAttempts\Security\Security;
  * @package GesimaticLoginAttempts\Core.
  */
 class Core extends Setup{
+
+    /**
+     * Array to store dinamicaly the instances of each class when they are required.
+     *
+     * @var array
+     */
+    protected array $instances = [];
+
    /**
      * Class constructor.
      *
@@ -22,6 +31,21 @@ class Core extends Setup{
     {
         //call to parent constructor
         parent::__construct();
+
+        // To register the gesimatic-login-attempts admin page
+        add_action('admin_menu',[$this,'register_admin_page']);
+
+        // to load the smtp admin assets
+        add_action('admin_enqueue_scripts',[$this,'admin_enqueue_assets'], 10, 1);
+
+        // Gesimatic menu highlighting using CSS/JS
+        add_action( 'admin_head', [ $this, 'force_menu_highlight' ] );
+
+        // adding the login attempts to gesimatic admin page
+        add_filter( 'gesimatic_admin_tabs', function( $tabs ) {
+                $tabs['gesimatic-login-attempts'] = esc_html__( 'Login attempts', 'gesimatic-login-attempts' );
+            return $tabs;
+        });
 
         // checks if the ip is not bloqued
         add_filter('authenticate', array($this,'validate_ip'),5,3);
@@ -38,15 +62,52 @@ class Core extends Setup{
         // Resets the login_status_ip and update the loged_ip table
         add_action('wp_login',array($this,'loged_ip'),10,2);
 
-        // adding the login attempts to gesimatic admin page
-        add_filter( 'gesimatic_admin_tabs', function( $tabs ) {
-                error_log ('GesimaticLoginAttempts filter:gesimatic_admin_tabs, $tabs: '.var_export($tabs,true));
-                $tabs['gesimatic-login-attempts'] = esc_html__( 'Login attempts', 'gesimatic-login-attempts' );
-            return $tabs;
-        });
 
 
     }
+
+    /**
+     * Loads the Admin class to register the gesimatic-login-attempts admin page
+     * 
+     * @param void
+     * @return void
+     */
+    function register_admin_page(): void{
+
+        // Load the Admin class if not is loaded
+        if (! isset($this->instances['admin']))
+            $this->instances['admin'] = new Admin();
+        $this->instances['admin']->register_admin_page();
+    }
+
+    /**
+     * Loads the Admin class to enqueue the gesimatic-smtp assets
+     * 
+     * @param void
+     * @return void
+     */
+    function admin_enqueue_assets($hook): void{
+
+        // Load the Admin class if not is loaded
+        if (! isset($this->instances['admin']))
+            $this->instances['admin'] = new Admin();
+        $this->instances['admin']->admin_enqueue_assets($hook);
+    }
+
+    /**
+     * Force highlighting of the main menu using CSS/JS when on a hidden modular page.
+     * 
+     * @param void
+     * @return void
+     */
+    function force_menu_highlight(): void{
+
+        // Load the Admin class if not is loaded
+        if (! isset($this->instances['admin']))
+            $this->instances['admin'] = new Admin();
+        $this->instances['admin']->force_menu_highlight();
+    }
+
 
     /**
      * Resets an ip, it means tha the ip is erased in table table_name_login_status_ip
