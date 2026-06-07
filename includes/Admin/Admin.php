@@ -5,12 +5,12 @@ namespace GesimaticLoginAttempts\Admin;
 /**
  * Class AdminMenu.
  * 
- * @package GesimaticSmtp\Admin.
+ * @package GesimaticLoginAttempts\Admin.
 */
 class Admin {
 
     /**
-     * Register the gesimatic-smtp module page.
+     * Register the gesimatic-login-atttempts module page.
      */
     public function register_admin_page(): void {
             
@@ -30,7 +30,7 @@ class Admin {
      */
     public function admin_enqueue_assets( $hook ) {
 
-        // Only load if the hook matches the slug from gesimatic-smtp.
+        // Only load if the hook matches the slug from gesimatic-login-attempts.
         if ( 'admin_page_gesimatic-login-attempts' !== $hook ) {
             return;
         }
@@ -73,14 +73,14 @@ class Admin {
         global $wp_roles;
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'You do not have sufficient permissions to access this page.','gesimatic-smtp' ) );
+            wp_die( esc_html__( 'You do not have sufficient permissions to access this page.','gesimatic-login-attempts' ) );
         }
 
-        do_action( 'gesimatic_admin_header', 'gesimatic-smtp' );
+        do_action( 'gesimatic_admin_header', 'gesimatic-login-attempts' );
         
         ?>
 
-                <div id="gesimatic-login-attempts-admin"><?php esc_html_e( 'There has been an error, the component did not render.', 'gesimatic-smtp' ); ?></div>
+                <div id="gesimatic-login-attempts-admin"><?php esc_html_e( 'There has been an error, the component did not render.', 'gesimatic-login-attempts' ); ?></div>
             </div>
         <?php
     }

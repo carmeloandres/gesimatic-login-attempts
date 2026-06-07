@@ -27,7 +27,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants
-define('GESIMATIC_LOGIN_ATTEMPTS_VERSION',2);
+define('GESIMATIC_LOGIN_ATTEMPTS_VERSION',4);
 define('GESIMATIC_LOGIN_ATTEMPTS_PATH',plugin_dir_path(__FILE__));
 define('GESIMATIC_LOGIN_ATTEMPTS_URL',plugin_dir_url(__FILE__));
 
