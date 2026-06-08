@@ -158,9 +158,6 @@ class Setup {
 							'initialLock' => 20,    // Set the initial period of lock in minutes    [1-100]
 							'multiplier' => 2,       // Set the multiplier to calculate the actual period of lock
                             'logedInAlert' => true,  // Set the loged in alert in true
-                            'blocksEnumerationAccess' => true, // Set to true, blocks the enumeration accesses to  ?author or /author/username
-                            'hideUsersEndpoints' => true, // Set to true hide the access to users endpoint throught the REST API
-                            'disablePostAuthorInfo' => true, // Set to true disables the author info in posts 
                             'triggerRoles' => array('administrator') // set the role of alerts to administrators only
                           );    
 

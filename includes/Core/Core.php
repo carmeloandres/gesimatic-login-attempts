@@ -3,6 +3,7 @@
 namespace GesimaticLoginAttempts\Core;
 
 use GesimaticLoginAttempts\Admin\Admin;
+use GesimaticLoginAttempts\Api\GetLoginAttemptsSettings;
 use GesimaticLoginAttempts\Core\Setup;
 use GesimaticLoginAttempts\Security\Security;
 
@@ -46,6 +47,10 @@ class Core extends Setup{
                 $tabs['gesimatic-login-attempts'] = esc_html__( 'Login attempts', 'gesimatic-login-attempts' );
             return $tabs;
         });
+
+        // adds the admin api actions
+        add_filter('gesimatic_admin_actions',[$this,'register_gesimatic_login_attempts_api_actions']);
+
 
         // checks if the ip is not bloqued
         add_filter('authenticate', array($this,'validate_ip'),5,3);
@@ -108,9 +113,39 @@ class Core extends Setup{
         $this->instances['admin']->force_menu_highlight();
     }
 
+    /**
+     * Registers the gesimatic login attempts api actions
+     * 
+     * @param array 
+     * @return array
+     */
+    public function register_gesimatic_login_attempts_api_actions($actions){
+
+        $new_actions = $actions;
+
+/*        $new_actions['set_smtp_settings'] = [
+            'validate' => [SetSmtpSettings::class, 'validate'],
+            'handle' => [SetSmtpSettings::class, 'handle'],
+        ];
+*/       
+        $new_actions['get_login_attempts_settings'] = [
+            'validate' => [GetLoginAttemptsSettings::class, 'validate'],
+            'handle' => [GetLoginAttemptsSettings::class, 'handle'],
+        ];              
+
+/*        $new_actions['send_test_email'] = [
+            'validate' => [SendTestEmail::class, 'validate'],
+            'handle' => [SendTestEmail::class, 'handle'],
+        ];
+*/
+//        error_log ('Gesimatic-login-attempts Core register_gesimatic_login_attempts_api_actions(), $new_actions: '.var_export($new_actions,true));
+
+        return $new_actions;
+    }
+
 
     /**
-     * Resets an ip, it means tha the ip is erased in table table_name_login_status_ip
+     * Resets an ip, it means tha the ip is erased in table table_name_status_ip
      * and update the last loged date ip.
      * 
      * @param string $user_login the username of the loged user.
@@ -121,14 +156,14 @@ class Core extends Setup{
     function loged_ip($user_login, $user){
         global $wpdb;
 
-        $options = get_option(OPTION_SETTINGS,array());
+        $options = get_option(self::OPTION_SETTINGS,array());
         
         if (isset($options['enabled']) && ($options['enabled'] == true) && isset($options['logedInAlert']) && ($options['logedInAlert'] == true)){            
             
             $ip = Security::get_client_ip();
             
             // Reset ipStatus
-            $wpdb->delete(self::$table_name_login_status_ip,array('ip' => $ip));
+            $wpdb->delete(self::$table_name_status_ip,array('ip' => $ip));
 
             if(isset($user->roles) && isset($options['triggerRoles']) ){
 
@@ -419,7 +454,7 @@ class Core extends Setup{
     function get_ip_status($ip){
         global $wpdb;
     
-        $query = "SELECT * FROM ".self::$table_name_login_status_ip." WHERE ip = '".$ip."'";
+        $query = "SELECT * FROM ".self::$table_name_status_ip." WHERE ip = '".$ip."'";
         $result = $wpdb->get_row($query,ARRAY_A);
         if ($result == null){
 
@@ -481,8 +516,8 @@ class Core extends Setup{
         global $wpdb;
     
         if (isset($status['id'])){
-            $result = $wpdb->update(self::$table_name_login_status_ip, $status, array( 'id' => $status['id']));
-        } else $result = $wpdb->insert(self::$table_name_login_status_ip, $status);
+            $result = $wpdb->update(self::$table_name_status_ip, $status, array( 'id' => $status['id']));
+        } else $result = $wpdb->insert(self::$table_name_status_ip, $status);
 
         if ($result != null)
             return true;

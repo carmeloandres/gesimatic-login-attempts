@@ -54,12 +54,22 @@ class Admin {
             $isSuperAdmin = true;
         else $isSuperAdmin = false;            
 
+        // Get the roles through the wp_roles object
+        global $wp_roles;
+
+        // Get role names
+        $roles = array();
+        foreach($wp_roles->roles as $rol_slug => $rol_info){
+            $roles[$rol_slug] = translate_user_role($rol_info['name']);
+        }
+
         wp_localize_script(
             'gesimatic-login-attempts-admin-js',
             'gesimaticLoginAttemptsAdmin',
             array(
                 "restUrl" => rest_url( '/gesimatic/v1/admin' ),
                 "nonce" => wp_create_nonce( 'wp_rest' ),
+                "availableRoles" => $roles,
                 "isSuperAdmin" => $isSuperAdmin
             )
         );
