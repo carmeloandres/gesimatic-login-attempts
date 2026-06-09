@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { gt, getLoginAttemptsSettings} from '../helpers';
+import { getLoginAttemptsSettings, gt, onInputNumber, setLoginAttemptsSettings} from '../helpers';
 import { GesimaticAccordion, LogedInAlerts, ToggleSwitch } from '../components';
 import { sprintf } from '@wordpress/i18n'; // execute 'npm install @wordpress/i18n' to install library
 import './GesimaticLoginAttemptsApp.css'
@@ -51,9 +51,9 @@ export const GesimaticLoginAttemptsApp = () => {
 
         setAlert({class:'gsmtc-notice gsmtc-notice-info',content:gt('updating_information','Updating information.. Please wait')});
 
-        const result = await setSmtpSettings(restUrl, nonce, settings)
+        const result = await setLoginAttemptsSettings(restUrl, nonce, settings)
 
-//        console.log ('onSubmit :', result);
+        console.log ('onSubmit :', result);
 
 
         if ( result.success ){
