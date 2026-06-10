@@ -33,12 +33,25 @@ class Setup {
     protected const OPTION_SETTINGS = 'gesimatic_login_attempts_settings';
 
      /**
+     * Default settings value.
+     * @var array
+     * @since 1
+     */
+    protected const DEFAULT_SETTINGS = [  
+        'enabled' => true,      // Enables the access login attempts funcionality 
+		'attempts' => 4,        // Set the fail access before start a lock period [1-100]
+		'initialLock' => 20,    // Set the initial period of lock in minutes    [1-100]
+		'multiplier' => 2,       // Set the multiplier to calculate the actual period of lock
+        'logedInAlert' => true,  // Set the loged in alert in true
+        'triggerRoles' => array('administrator') // set the role of alerts to administrators only
+    ];
+
+     /**
      * Spotlight to use when quering option blocked ips
      * @var string
      * @since 1
      */
     protected const SPOTLIGHT_QUERING_BLOCKED_IPS = 'gesimatic_login_attempts_quering_bloqued_ips_spotlight';
-
 
     /**
      * Number of items per page in a paged query.

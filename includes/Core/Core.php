@@ -4,6 +4,7 @@ namespace GesimaticLoginAttempts\Core;
 
 use GesimaticLoginAttempts\Admin\Admin;
 use GesimaticLoginAttempts\Api\GetLoginAttemptsSettings;
+use GesimaticLoginAttempts\Api\SetLoginAttemptsSettings;
 use GesimaticLoginAttempts\Core\Setup;
 use GesimaticLoginAttempts\Security\Security;
 
@@ -123,11 +124,11 @@ class Core extends Setup{
 
         $new_actions = $actions;
 
-/*        $new_actions['set_smtp_settings'] = [
-            'validate' => [SetSmtpSettings::class, 'validate'],
-            'handle' => [SetSmtpSettings::class, 'handle'],
+        $new_actions['set_login_attempts_settings'] = [
+            'validate' => [SetLoginAttemptsSettings::class, 'validate'],
+            'handle' => [SetLoginAttemptsSettings::class, 'handle'],
         ];
-*/       
+       
         $new_actions['get_login_attempts_settings'] = [
             'validate' => [GetLoginAttemptsSettings::class, 'validate'],
             'handle' => [GetLoginAttemptsSettings::class, 'handle'],

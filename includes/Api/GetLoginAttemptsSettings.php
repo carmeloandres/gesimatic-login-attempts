@@ -41,22 +41,14 @@ class GetLoginAttemptsSettings extends Setup{
     public static function handle($validated){
 
         if ($validated){
-
-            $default = array(   'enabled' => true,      // Enables the access limit attempts funcionality 
-							    'attempts' => 4,        // Set the fail access before start a lock period [1-100]
-							    'initialLock' => 20,    // Set the initial period of lock in minutes    [1-100]
-							    'multiplier' => 2,       // Set the multiplier to calculate the actual period of lock
-                                'logedInAlert' => true,  // Set the loged in alert in true
-                                'triggerRoles' => array('administrator') // set the role of alerts to administrators only
-                            );    
     
-            $settings = get_option(self::OPTION_SETTINGS,$default);
+            $settings = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
 
 //            error_log ('GetLoginAttemptsSettings handle, $settings: '.var_export($settings,true));
   
         if (is_array($settings))
                 return new \WP_REST_Response($settings, 200);
-            else return new \WP_REST_Response($default, 200);
+            else return new \WP_REST_Response(self::DEFAULT_SETTINGS, 200);
         } else return CommonResponse::error();
 
     }
