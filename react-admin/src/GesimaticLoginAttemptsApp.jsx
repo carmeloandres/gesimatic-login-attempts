@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getLoginAttemptsSettings, gt, onInputNumber, setLoginAttemptsSettings} from '../helpers';
-import { GesimaticAccordion, LogedInAlerts, ToggleSwitch } from '../components';
+import { GesimaticAccordion, LogedInAlerts, StatusIps, ToggleSwitch } from '../components';
 import { sprintf } from '@wordpress/i18n'; // execute 'npm install @wordpress/i18n' to install library
 import './GesimaticLoginAttemptsApp.css'
 
@@ -90,12 +90,12 @@ export const GesimaticLoginAttemptsApp = () => {
         <div className="wrap">
             <h2>{ gt('access_attempts','Access attempts') }</h2>
             <GesimaticAccordion
-            showHide={showAccessAttempts}
-            title={gt('settings','Settings')}
-            openLabel={gt('hide_settings','Hide settings')}
-            closedLabel={gt('show_settings','Show settings')}
-            onChange={setShowAccessAttempts}
-        >
+                showHide={showAccessAttempts}
+                title={gt('settings','Settings')}
+                openLabel={gt('hide_settings','Hide settings')}
+                closedLabel={gt('show_settings','Show settings')}
+                onChange={setShowAccessAttempts}
+            >
             <form onSubmit={onSubmit}>
                 <table className="form-table">
                     <tbody>
@@ -164,7 +164,24 @@ export const GesimaticLoginAttemptsApp = () => {
                 </p>
             </form>
         </GesimaticAccordion>
-
+        <div style={{display: (settings.enabled)? 'block' : 'none'}}>
+        <GesimaticAccordion
+            showHide={showStatusIps}
+            title={gt('status_ips','Status ips')}
+            openLabel={gt('hide_status_ips','Hide status ips')}
+            closedLabel={gt('show_status_ips','Show status ips')}
+            onChange={setShowStatusIps}
+        >
+            <StatusIps
+                restUrl={restUrl}
+                nonce={nonce}
+            />
+        </GesimaticAccordion>
         </div>
+            <div className="gsmtc-notice gsmtc-notice-info">
+                <p>{gt('this_plugin_temporarily_stores_the_IP','This plugin temporarily stores the IP addresses of failed login attempts to prevent brute-force attacks. IPs are automatically deleted after a successful login. We recommend including this information in your Privacy Policy.')}</p>
+            </div>                
+    </div>
+    
     )
 }

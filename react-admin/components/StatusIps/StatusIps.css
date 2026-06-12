@@ -1,0 +1,36 @@
+.sort {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+}
+.sort-asc{
+   
+    color:#c3c4c7;
+    height: 6px;   
+    margin-left: 4px;
+    margin-top: -5px;
+    padding: 0;
+}
+
+.sort-asc.selected{
+    color: #2271b1;
+}
+
+.sort-asc:hover{
+    color: #2271b1;
+}
+
+.sort-desc{
+   color:#c3c4c7; 
+    height: 6px;   
+    margin-left: 4px;
+    margin-top: 4px;
+    padding: 0;
+}
+.sort-desc.selected{
+    color: #2271b1;
+}
+
+.sort-desc:hover{
+    color: #2271b1;
+}

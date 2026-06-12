@@ -4,6 +4,7 @@ namespace GesimaticLoginAttempts\Core;
 
 use GesimaticLoginAttempts\Admin\Admin;
 use GesimaticLoginAttempts\Api\GetLoginAttemptsSettings;
+use GesimaticLoginAttempts\Api\GetLoginAttemptsStatusIps;
 use GesimaticLoginAttempts\Api\SetLoginAttemptsSettings;
 use GesimaticLoginAttempts\Core\Setup;
 use GesimaticLoginAttempts\Security\Security;
@@ -134,11 +135,11 @@ class Core extends Setup{
             'handle' => [GetLoginAttemptsSettings::class, 'handle'],
         ];              
 
-/*        $new_actions['send_test_email'] = [
-            'validate' => [SendTestEmail::class, 'validate'],
-            'handle' => [SendTestEmail::class, 'handle'],
+        $new_actions['get_login_attempts_status_ips'] = [
+            'validate' => [GetLoginAttemptsStatusIps::class, 'validate'],
+            'handle' => [GetLoginAttemptsStatusIps::class, 'handle'],
         ];
-*/
+
 //        error_log ('Gesimatic-login-attempts Core register_gesimatic_login_attempts_api_actions(), $new_actions: '.var_export($new_actions,true));
 
         return $new_actions;
@@ -199,7 +200,7 @@ class Core extends Setup{
      */
     function login_errors_message($errors): string{
 
-        $options = get_option(OPTION_SETTINGS);
+        $options = get_option(self::OPTION_SETTINGS);
 
         if ($options['enabled'] == true){
 
@@ -406,11 +407,11 @@ class Core extends Setup{
             $retry_delay = 1; // Seconds to retry the query
 
             // wait until the transient expires or is deleted
-            while (get_transient(SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
+            while (get_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
                 sleep($retry_delay);
             }
             // set the spotlight to  disabling the access to the option
-            set_transient(SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
+            set_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
 
             $status = $this->get_ip_status($ip);
                         
@@ -439,7 +440,7 @@ class Core extends Setup{
             $this->set_ip_status($status);
                 
             // delete the spotlight to enabling the access to the option
-            delete_transient(SPOTLIGHT_QUERING_BLOCKED_IPS);
+            delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
         }        
     }
 
