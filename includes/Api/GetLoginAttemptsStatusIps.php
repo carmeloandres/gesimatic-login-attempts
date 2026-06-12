@@ -16,6 +16,20 @@ use GesimaticLoginAttempts\Core\Setup;
  */
 class GetLoginAttemptsStatusIps extends Setup{
 
+     /**
+     * Order valid values.
+     * @var array
+     * @since 1
+     */
+    protected const VALID_ORDERS = ['','desc','asc'];
+
+     /**
+     * Order valid values.
+     * @var array
+     * @since 1
+     */
+    protected const VALID_FILTERS = ['','enabled','disabled'];
+
     /**
      * To validate 
      * 
@@ -26,10 +40,61 @@ class GetLoginAttemptsStatusIps extends Setup{
 
         error_log ('GetLoginAttemptsStatusIps validate, $params: '.var_export($params,true));
 
+        // sets the default value
+        $sanitized_params = array();
+
         // check if acction is as expected
         if(isset($params['action']) && ($params['action'] === 'get_login_attempts_status_ips')){
-            return true;
+            if(isset($params['query'])){
+                
+                $query = json_decode($params['query']);
+                if ( json_last_error() !== JSON_ERROR_NONE) return false;
+
+                $query = (array) $query; // convert object $settings to array
+
+                error_log ('GetLoginAttemptsStatusIps validate, $query: '.var_export($query,true));
+
+                // validate page
+                if(isset($query['page']) ){
+                    $sanitized_params['page'] = sanitize_text_field($query['page']);
+                    if ( (filter_var($sanitized_params['page'], FILTER_VALIDATE_INT) === false) || ( 0 >= (int) $sanitized_params['page'])) return false;
+                }else return false;
+
+                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+
+                // validate orderAttempts
+                if(isset($query['orderAttempts']) ){
+                    $sanitized_params['orderAttempts'] = sanitize_text_field($query['orderAttempts']);
+                    if ( ! in_array($sanitized_params['orderAttempts'],self::VALID_ORDERS)) return false;
+                }else return false;
+                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+
+
+                // validate orderLockPeriod
+                if(isset($query['orderLockPeriod']) ){
+                    $sanitized_params['orderLockPeriod'] = sanitize_text_field($query['orderLockPeriod']);
+                    if ( ! in_array($sanitized_params['orderLockPeriod'],self::VALID_ORDERS)) return false;
+                }else return false;
+                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+
+                // validate orderLastAttempt
+                if(isset($query['orderLastAttempt']) ){
+                    $sanitized_params['orderLastAttempt'] = sanitize_text_field($query['orderLastAttempt']);
+                    if ( ! in_array($sanitized_params['orderLastAttempt'],self::VALID_ORDERS)) return false;
+                }else return false;
+                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+
+                // validate FilterStatus
+                if(isset($query['filterStatus']) ){
+                    $sanitized_params['filterStatus'] = sanitize_text_field($query['filterStatus']);
+                    if ( ! in_array($sanitized_params['filterStatus'],self::VALID_FILTERS)) return false;
+                }else return false;
+                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+
+            } else return false;
         } else return false;
+
+        return $sanitized_params;
     }
 
     /**
@@ -38,19 +103,67 @@ class GetLoginAttemptsStatusIps extends Setup{
      * This method perfoms the necesaria actions to handle data, to perform the request.
      * 
      */
-    public static function handle($validated){
+    public static function handle($params){
 
-        return CommonResponse::error();
+    	global $wpdb;
 
-        if ($validated){
-    
-            $settings = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
+        error_log ('GetLoginAttemptsStatusIps handle, $params: '.var_export($params,true));
 
-//            error_log ('GetLoginAttemptsSettings handle, $settings: '.var_export($settings,true));
-  
-        if (is_array($settings))
-                return new \WP_REST_Response($settings, 200);
-            else return new \WP_REST_Response(self::DEFAULT_SETTINGS, 200);
+        if (is_array($params)){
+
+            $result = array();
+
+            self::reload_blocked_ips();
+
+            $page = intval($params['page']);
+
+            $orderQuery = '';
+			if($params['orderLastAttempt'] != ''){
+				if($params['orderLastAttempt'] == 'asc')
+					$orderQuery = ' ORDER BY lastAttempt ASC ';
+				else $orderQuery = ' ORDER BY lastAttempt DESC ';
+			} else if($params['orderAttempts'] != ''){
+						if($params['orderAttempts'] == 'asc')
+							$orderQuery = ' ORDER BY attempts ASC ';
+						else $orderQuery = ' ORDER BY attempts DESC ';
+					} else if($params['orderLockPeriod'] != ''){
+								if($params['orderLockPeriod'] == 'asc')
+									$orderQuery = ' ORDER BY currentPeriod ASC ';
+								else $orderQuery = ' ORDER BY currentPeriod DESC ';
+							};
+
+			$filterQuery = '';
+			if($params['filterStatus'] != ''){
+				if($params['filterStatus'] == 'enabled')
+					$filterQuery = " WHERE status = 'enabled' ";
+				else $filterQuery = " WHERE status <> 'enabled' ";
+			};
+
+	        $offset = ($page - 1) * intval(self::$per_page);
+
+            // get status ips
+			$results = $wpdb->get_results($wpdb->prepare("SELECT * FROM %i ".$filterQuery.$orderQuery."LIMIT %d OFFSET %d ",self::$table_name_status_ip, self::$per_page, $offset) ,ARRAY_A);
+
+            //sending the rest time to unblock
+			$now = time();
+			$new_results = array();
+			foreach($results as $result){
+				if (intval($result['lockUntil']) > intval($now)){
+					$result['lockUntil'] = intval($result['lockUntil']) - intval($now);
+					
+				} else if ($result['status'] != 'enabled'){
+						$result['lockUntil'] = 0;
+						$result['status'] = 'enabled';
+						$this->unlock_ip($result['ip']);
+					}
+				// send the seconds from lastAttempt to syncronize with client clock
+				$result['lastAttempt'] = $now - intval($result['lastAttempt']);
+				$new_results[] = $result;
+			}
+			$results = $new_results;
+
+             return new \WP_REST_Response($results, 200);
+
         } else return CommonResponse::error();
 
     }

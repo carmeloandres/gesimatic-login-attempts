@@ -88,6 +88,9 @@ export const StatusIps = ({restUrl, nonce }) => {
         setAlert({class:'gsmtc-notice gsmtc-notice-warning',content:gt('getting_the_information','Getting the information.. Please wait')});
 
         const status = await getStatusIps(restUrl,nonce, query);
+
+        console.log ('status : ',status);
+
         let newStatus = []
         status.forEach(element => {
             let newElement = {...element,action : false}

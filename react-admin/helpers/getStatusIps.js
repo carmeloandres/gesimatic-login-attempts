@@ -21,11 +21,7 @@ export const getStatusIps = async (restUrl, nonce, query = {page : 1, orderAttem
     // create the FormData to store the Data of query
     let apiData = new FormData();
     apiData.append('action','get_login_attempts_status_ips');
-    apiData.append('page',page);
-    apiData.append('orderAttempts',orderAttempts);
-    apiData.append('orderLockPeriod',orderLockPeriod);
-    apiData.append('orderLastAttempt',orderLastAttempt);
-    apiData.append('filterStatus',filterStatus);
+    apiData.append('query',JSON.stringify({...query}));
 
     // send the query to the api endpoint
     const resp = await fetch(restUrl,{

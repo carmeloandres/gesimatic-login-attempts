@@ -231,7 +231,7 @@ class Setup {
      * @params void
      * @return void
      */
-    function reload_bloqued_ips(){
+    public static function reload_blocked_ips(){
         global $wpdb;
 
         // spotlight to checks if the are queries of the option in process
@@ -239,12 +239,12 @@ class Setup {
         $retry_delay = 1; // Seconds to retry the query
 
         // wait until the transient expires or is deleted
-        while (get_transient(SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
+        while (get_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
             sleep($retry_delay);
         }
 
         // set the spotlight to disabling the access to the option
-        set_transient(SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
+        set_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
 
         $query = "SELECT * FROM ".self::$table_name_status_ip." WHERE status = 'bloqued'";
         $results = $wpdb->get_results($query,ARRAY_A);
@@ -264,10 +264,10 @@ class Setup {
             }
         }
         // create the gsmtc_bloqued_ips
-		update_option(OPTION_BLOCKED_IPS,$bloquedIps);
+		update_option(self::OPTION_BLOCKED_IPS,$bloquedIps);
 
         // delete the spotlight to enabling the access to the option
-        delete_transient(SPOTLIGHT_QUERING_BLOCKED_IPS);
+        delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
     
     }
 
