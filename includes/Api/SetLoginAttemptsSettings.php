@@ -40,7 +40,7 @@ class SetLoginAttemptsSettings extends Setup{
                 $settings = (array) $settings; // convert object $settings to array
                 // if is multisite and user is super_admin try to get the updateNetwork field 
                 if (function_exists( 'is_multisite' ) && is_multisite() && is_super_admin()){
-                    if (isset($settings['updateNetwork']) && gettype($settings['updatetNetwork']) === 'boolean' && $settings['updateNetwork'] === true )
+                    if (isset($settings['updateNetwork']) && gettype($settings['updateNetwork']) === 'boolean' && $settings['updateNetwork'] === true )
                         $sanitized_params['updatenetwork'] = true;
                 }
 //                error_log ('SetLoginAttemptsSettings validate, $settings: '.var_export($settings,true));
@@ -129,7 +129,7 @@ class SetLoginAttemptsSettings extends Setup{
         $result = true;
 
         foreach($triggerRoles as $role){
-            if ( ! in_array($role, $triggerRoles))
+            if ( ! array_key_exists($role, $roles))
                 $result = false;
         }
 

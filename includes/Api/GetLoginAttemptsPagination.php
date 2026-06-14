@@ -64,8 +64,8 @@ class GetLoginAttemptsPagination extends Setup{
 				if ($validated['filterStatus'] == 'enabled')
 					$filterStatus = " WHERE status = 'enabled' ";
 				else $filterStatus = " WHERE status <> 'enabled' ";
-
-	        $items = $wpdb->get_var($wpdb->prepare( "SELECT COUNT(*) FROM %i ".$filterStatus,self::$table_name_status_ip));
+        
+    $items = $wpdb->get_var( "SELECT COUNT(*) FROM " . self::$table_name_status_ip . " " . $filterStatus );
 
 	        $pages = 0;
 			if (($items != NULL)){

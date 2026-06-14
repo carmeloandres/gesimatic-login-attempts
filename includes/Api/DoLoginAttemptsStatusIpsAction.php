@@ -68,21 +68,23 @@ class DoLoginAttemptsStatusIpsAction extends Setup{
     public static function handle($validated){
         global $wpdb;
 
-        error_log ('GetLoginAttemptsPagination handle, $validated: '.var_export($validated,true));
+        error_log ('DoLoginAttemptsStatusIpsAction handle, $validated: '.var_export($validated,true));
 
         if (is_array($validated)){
-			foreach($validated['ids'] as $id){
-				if ($validated['doAction'] == 'reset'){
-					$wpdb->delete(self::$table_name_status_ip,array('id' => $id));
-				} else {
-					$status = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM %i WHERE id = %s",self::$table_name_status_ip,$id ), ARRAY_A );
+            foreach($validated['ids'] as $id){
+                if ($validated['doAction'] == 'reset'){
+                    $wpdb->delete(self::$table_name_status_ip,array('id' => $id));
+                } else {
+                    $status = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . self::$table_name_status_ip . " WHERE id = %d", (int) $id ), ARRAY_A );
 
-					$status['lockUntil'] = 0;
-					$status['status'] = 'enabled';
-					$wpdb->update(self::$table_name_status_ip,$status,array('id' => $id));
-				}
-			}	
-			self::reload_gsmtc_bloqued_ips();
+                    if ( is_array( $status ) ) {
+                        $status['lockUntil'] = 0;
+                        $status['status'] = 'enabled';
+                        $wpdb->update(self::$table_name_status_ip,$status,array('id' => $id));
+                    }
+                }
+            }
+            self::reload_blocked_ips();
 
         } else return CommonResponse::error();
 

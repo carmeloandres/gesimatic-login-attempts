@@ -110,19 +110,19 @@ class GetLoginAttemptsStatusIps extends Setup{
             $page = intval($params['page']);
 
             $orderQuery = '';
-			if($params['orderLastAttempt'] != ''){
-				if($params['orderLastAttempt'] == 'asc')
-					$orderQuery = ' ORDER BY lastAttempt ASC ';
-				else $orderQuery = ' ORDER BY lastAttempt DESC ';
-			} else if($params['orderAttempts'] != ''){
-						if($params['orderAttempts'] == 'asc')
-							$orderQuery = ' ORDER BY attempts ASC ';
-						else $orderQuery = ' ORDER BY attempts DESC ';
-					} else if($params['orderLockPeriod'] != ''){
-								if($params['orderLockPeriod'] == 'asc')
-									$orderQuery = ' ORDER BY currentPeriod ASC ';
-								else $orderQuery = ' ORDER BY currentPeriod DESC ';
-							};
+            if($params['orderLastAttempt'] != ''){
+                if($params['orderLastAttempt'] == 'asc')
+                    $orderQuery = ' ORDER BY lastAttempt ASC ';
+                else $orderQuery = ' ORDER BY lastAttempt DESC ';
+            } else if($params['orderAttempts'] != ''){
+                        if($params['orderAttempts'] == 'asc')
+                            $orderQuery = ' ORDER BY attempts ASC ';
+                        else $orderQuery = ' ORDER BY attempts DESC ';
+                    } else if($params['orderLockPeriod'] != ''){
+                                if($params['orderLockPeriod'] == 'asc')
+                                    $orderQuery = ' ORDER BY currentPeriod ASC ';
+                                else $orderQuery = ' ORDER BY currentPeriod DESC ';
+                            };
 
 			$filterQuery = '';
 			if($params['filterStatus'] != ''){
@@ -134,19 +134,20 @@ class GetLoginAttemptsStatusIps extends Setup{
 	        $offset = ($page - 1) * intval(self::$per_page);
 
             // get status ips
-			$results = $wpdb->get_results($wpdb->prepare("SELECT * FROM %i ".$filterQuery.$orderQuery."LIMIT %d OFFSET %d ",self::$table_name_status_ip, self::$per_page, $offset) ,ARRAY_A);
+            $sql = "SELECT * FROM " . self::$table_name_status_ip . " " . $filterQuery . $orderQuery . " LIMIT %d OFFSET %d";
+            $results = $wpdb->get_results($wpdb->prepare($sql, self::$per_page, $offset), ARRAY_A);
 
             //sending the rest time to unblock
 			$now = time();
 			$new_results = array();
 			foreach($results as $result){
-				if (intval($result['lockUntil']) > intval($now)){
+                if (intval($result['lockUntil']) > intval($now)){
 					$result['lockUntil'] = intval($result['lockUntil']) - intval($now);
 					
 				} else if ($result['status'] != 'enabled'){
 						$result['lockUntil'] = 0;
 						$result['status'] = 'enabled';
-						$this->unlock_ip($result['ip']);
+                        self::unlock_ip($result['ip']);
 					}
 				// send the seconds from lastAttempt to syncronize with client clock
 				$result['lastAttempt'] = $now - intval($result['lastAttempt']);

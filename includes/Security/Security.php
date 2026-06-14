@@ -61,7 +61,7 @@ class Security extends Setup{
                     $blockedIp = true;
                     $newBlockedIps[] = $blocked;
                 } else {// the current time is higher than "until" blocked time it must unlock the ip
-                    $this->unlock_ip($blocked['ip']);
+                    self::unlock_ip($blocked['ip']);
                     $updated_blocked_ips = true;
                 }
             } else {

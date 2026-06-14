@@ -196,7 +196,7 @@ class Setup {
      * @params ip The ip to unlock
      * @return boolean 
      */
-    function unlock_ip($ip){
+    public static function unlock_ip($ip){
         global $wpdb;
 
         // spotlight to checks if the are queries of the option in process
@@ -204,29 +204,30 @@ class Setup {
         $retry_delay = 1; // Seconds to retry the query
 
         // wait until the transient expires or is deleted
-        while (get_transient(SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
+        while (get_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
             sleep($retry_delay);
         }
 
         // set the spotlight to disabling the access to the option
-        set_transient(SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
+        set_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
 
-        $query = "SELECT * FROM ".self::$table_name_status_ip." WHERE ip = '".$ip."'";
-
-        $status = $wpdb->get_row($query,ARRAY_A);
+        $status = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . self::$table_name_status_ip . " WHERE ip = %s", $ip), ARRAY_A);
         $now = time();
+        $result = false;
 
         if (($status != null) && (intval($status['lockUntil']) < $now)){
             $status['lockUntil'] = 0;
             $status['status'] = 'enabled';
 
-            $result = $wpdb->update(self::$table_name_status_ip,$status,array('id' => $status['id']));
-            if (false !== $result)
+            $update = $wpdb->update(self::$table_name_status_ip,$status,array('id' => $status['id']));
+            if (false !== $update)
                 $result = true;
-        } else $result = false;
+        } else {
+            $result = false;
+        }
 
         // delete the spotlight to enabling the access to the option
-        delete_transient(SPOTLIGHT_QUERING_BLOCKED_IPS);
+        delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
 
         return $result;
     }
