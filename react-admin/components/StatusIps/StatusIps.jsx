@@ -113,10 +113,6 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
 
     }
 
-    useEffect(() => {
-        console.log ('actionString :', actionString)
-    },[actionString])
-
     const onClickAction = async (event) => {
 
         let ids = event.target.id.split('-');
@@ -154,6 +150,8 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
     const onApplyAction = async (action) => {
 
         setAlert({class:'gsmtc-notice gsmtcnotice-info fade-in',content:gt('performing_the_action','Performing the action.. Please wait')});
+
+        console.log('onApplyAction, statusIps: ', statusIps);
 
         let ids = [];
         statusIps.forEach((status) => {

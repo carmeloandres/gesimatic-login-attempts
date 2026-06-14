@@ -20,7 +20,7 @@ export const doStatusIpsAction = async (restUrl, nonce, action, ids =[] ) => {
 
     // create the FormData to store the Data of query
     let apiData = new FormData();
-    apiData.append('action','do_status_ips_action');
+    apiData.append('action','do_login_attempts_status_ips_action');
     apiData.append('doAction',action);
     apiData.append('ids',JSON.stringify(ids))
     //apiData.append('ids',ids.toString());

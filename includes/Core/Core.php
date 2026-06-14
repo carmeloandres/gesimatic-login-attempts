@@ -3,6 +3,7 @@
 namespace GesimaticLoginAttempts\Core;
 
 use GesimaticLoginAttempts\Admin\Admin;
+use GesimaticLoginAttempts\Api\DoLoginAttemptsStatusIpsAction;
 use GesimaticLoginAttempts\Api\GetLoginAttemptsPagination;
 use GesimaticLoginAttempts\Api\GetLoginAttemptsSettings;
 use GesimaticLoginAttempts\Api\GetLoginAttemptsStatusIps;
@@ -144,6 +145,11 @@ class Core extends Setup{
         $new_actions['get_login_attempts_pagination'] = [
             'validate' => [GetLoginAttemptsPagination::class, 'validate'],
             'handle' => [GetLoginAttemptsPagination::class, 'handle'],
+        ];
+
+        $new_actions['do_login_attempts_status_ips_action'] = [
+            'validate' => [DoLoginAttemptsStatusIpsAction::class, 'validate'],
+            'handle' => [DoLoginAttemptsStatusIpsAction::class, 'handle'],
         ];
 
         //        error_log ('Gesimatic-login-attempts Core register_gesimatic_login_attempts_api_actions(), $new_actions: '.var_export($new_actions,true));

@@ -67,8 +67,6 @@ class GetLoginAttemptsPagination extends Setup{
 
 	        $items = $wpdb->get_var($wpdb->prepare( "SELECT COUNT(*) FROM %i ".$filterStatus,self::$table_name_status_ip));
 
-            error_log ('GetLoginAttemptsPagination handle, $items: '.var_export($items,true));
-
 	        $pages = 0;
 			if (($items != NULL)){
 				$pages = intval($items) / intval(self::$per_page);
