@@ -54,6 +54,14 @@ class Setup {
     protected const SPOTLIGHT_QUERING_BLOCKED_IPS = 'gesimatic_login_attempts_quering_bloqued_ips_spotlight';
 
     /**
+     * Order valid values. Used in Api request validations
+     * @var array
+     * @since 1
+     */
+    protected const VALID_FILTERS = ['','enabled','disabled'];
+
+
+    /**
      * Number of items per page in a paged query.
      *
      * @var string

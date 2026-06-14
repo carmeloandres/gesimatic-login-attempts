@@ -68,22 +68,24 @@ export const WpTableNAvigation = ({items, pages, page, onChangePage}) => {
 
    return(
             <>
-                <div className='tablenav-pages'>
-                    <span className='displaying-num'>{items+' '+gt('items','items')} </span>
-                    <span className='pagination-links'>
+                <div className='tablenav-pages' style={{display:"flex", alignItems:"center"}}>
+                    <span className='displaying-num' style={{margin:"0 3px"}}>{items+' '+gt('items','items')} </span>
+                    {(items > 0) &&
+                    <span className='pagination-links' style={{display: 'flex',alignItems: 'center',gap: '4px'}}>
                         <span className='tablenav-pages-navspan button' name='first' onClick={onChange} disabled={disabledLeft}>{'<<'}</span>
                         <span className='tablenav-pages-navspan button' name='prev' onClick={onChange} disabled={disabledLeft}>{'<'}</span>
-                        <span className='paging-input'>
-                            <label for='current-page-selector' className='screen-reader-text'>{gt('current_page','Current page')}</label>
+                        <span className='paging-input' style={{display: 'inline-flex',alignItems: 'center',gap: '4px'}}>
+                            <label htmlFor='current-page-selector' style={{margin:"0 3px"}}>{gt('current_page','Current page')}</label>
                             <input className='current-page' id='current-page-selector' type="number" name="paged" value={page} size="1" min="1" max={pages} onChange={onChangeInput} disabled={inputDisabled} />
-                            <span className='tablenav-paging-text'>
+                            <span className='tablenav-paging-text' style={{margin:"0 3px"}}>
                                 {gt('of','of')}
                                 <span className='total-pages'> {pages} </span>
                             </span>
                         </span>
                         <span className='tablenav-pages-navspan button' name="next" onClick={onChange} disabled={disabledRight}>{'>'}</span>
                         <span className='tablenav-pages-navspan button' name="last" onClick={onChange} disabled={disabledRight}>{'>>'}</span>
-                    </span>
+                    </span>                    
+                    }
                </div>            
             </>
     )

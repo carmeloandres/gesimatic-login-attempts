@@ -30,9 +30,9 @@ export const GesimaticLoginAttemptsApp = () => {
 
 
   useEffect(async () => {
-    let data = await getLoginAttemptsSettings(restUrl, nonce);
-    setSettings(data);
-    console.log ('gesimaticLoginAttemptsAdmin :', gesimaticLoginAttemptsAdmin);
+        let data = await getLoginAttemptsSettings(restUrl, nonce);
+        setSettings(data);
+    
   },[])
 
   useEffect(() => {
@@ -175,6 +175,7 @@ export const GesimaticLoginAttemptsApp = () => {
             <StatusIps
                 restUrl={restUrl}
                 nonce={nonce}
+                isShown={showStatusIps}
             />
         </GesimaticAccordion>
         </div>

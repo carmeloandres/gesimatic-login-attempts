@@ -22,18 +22,18 @@ export const GesimaticAccordion = ({showHide, title= '', openLabel = '', closedL
     useEffect(() => {
         if (showHide){
             setLabel(openLabel)
-            setButtonClass('gesimatic-accordion-button open')
+            setButtonClass('gsmtc-accordion-button open')
         } else {
             setLabel(closedLabel)
-            setButtonClass('gesimatic-accordion-button')
+            setButtonClass('gsmtc-accordion-button')
         }
     },[showHide])
 
    return(
             <>
-                <div className='gesimatic-accordion'>
-                    <div className={buttonClass} onClick={() => onChange( ! showHide)}><h2 className='gesimatic-accordion-button-label'>{title}</h2><div className='gesimatic-accordion-action-button' onClick={() => onChange( ! showHide)}><span style={{verticalAlign: 'middle'}}>{label}</span>{showHide &&  <icons.arrow_up_circle className={'bi'} name='upAccordion' onClick={() => onChange( ! showHide)}/>}{ ! showHide &&  <icons.arrow_down_circle className={'bi'} name='downAccordion' onClick={() => onChange( ! showHide)}/>} </div></div>
-                        <div className='gesimatic-accordion-content' style={{display: (showHide)? 'block' : 'none'}}>
+                <div className='gsmtc-accordion'>
+                    <div className={buttonClass} onClick={() => onChange( ! showHide)}><h2 className='gsmtc-accordion-button-label'>{title}</h2><div className='gsmtc-accordion-action-button' onClick={() => onChange( ! showHide)}><span style={{verticalAlign: 'middle'}}>{label}</span>{showHide &&  <icons.arrow_up_circle className={'bi'} name='upAccordion' onClick={() => onChange( ! showHide)}/>}{ ! showHide &&  <icons.arrow_down_circle className={'bi'} name='downAccordion' onClick={() => onChange( ! showHide)}/>} </div></div>
+                        <div className='gsmtc-accordion-content' style={{display: (showHide)? 'block' : 'none'}}>
                             {children}
                         </div>                
                 </div>            

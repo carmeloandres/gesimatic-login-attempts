@@ -23,13 +23,6 @@ class GetLoginAttemptsStatusIps extends Setup{
      */
     protected const VALID_ORDERS = ['','desc','asc'];
 
-     /**
-     * Order valid values.
-     * @var array
-     * @since 1
-     */
-    protected const VALID_FILTERS = ['','enabled','disabled'];
-
     /**
      * To validate 
      * 
@@ -38,7 +31,7 @@ class GetLoginAttemptsStatusIps extends Setup{
      */
     public static function validate($params){
 
-        error_log ('GetLoginAttemptsStatusIps validate, $params: '.var_export($params,true));
+//        error_log ('GetLoginAttemptsStatusIps validate, $params: '.var_export($params,true));
 
         // sets the default value
         $sanitized_params = array();
@@ -52,7 +45,7 @@ class GetLoginAttemptsStatusIps extends Setup{
 
                 $query = (array) $query; // convert object $settings to array
 
-                error_log ('GetLoginAttemptsStatusIps validate, $query: '.var_export($query,true));
+//                error_log ('GetLoginAttemptsStatusIps validate, $query: '.var_export($query,true));
 
                 // validate page
                 if(isset($query['page']) ){
@@ -60,14 +53,14 @@ class GetLoginAttemptsStatusIps extends Setup{
                     if ( (filter_var($sanitized_params['page'], FILTER_VALIDATE_INT) === false) || ( 0 >= (int) $sanitized_params['page'])) return false;
                 }else return false;
 
-                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+//                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
 
                 // validate orderAttempts
                 if(isset($query['orderAttempts']) ){
                     $sanitized_params['orderAttempts'] = sanitize_text_field($query['orderAttempts']);
                     if ( ! in_array($sanitized_params['orderAttempts'],self::VALID_ORDERS)) return false;
                 }else return false;
-                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+//                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
 
 
                 // validate orderLockPeriod
@@ -75,21 +68,20 @@ class GetLoginAttemptsStatusIps extends Setup{
                     $sanitized_params['orderLockPeriod'] = sanitize_text_field($query['orderLockPeriod']);
                     if ( ! in_array($sanitized_params['orderLockPeriod'],self::VALID_ORDERS)) return false;
                 }else return false;
-                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+//                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
 
                 // validate orderLastAttempt
                 if(isset($query['orderLastAttempt']) ){
                     $sanitized_params['orderLastAttempt'] = sanitize_text_field($query['orderLastAttempt']);
                     if ( ! in_array($sanitized_params['orderLastAttempt'],self::VALID_ORDERS)) return false;
                 }else return false;
-                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+//                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
 
                 // validate FilterStatus
                 if(isset($query['filterStatus']) ){
                     $sanitized_params['filterStatus'] = sanitize_text_field($query['filterStatus']);
                     if ( ! in_array($sanitized_params['filterStatus'],self::VALID_FILTERS)) return false;
                 }else return false;
-                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
 
             } else return false;
         } else return false;
@@ -107,7 +99,7 @@ class GetLoginAttemptsStatusIps extends Setup{
 
     	global $wpdb;
 
-        error_log ('GetLoginAttemptsStatusIps handle, $params: '.var_export($params,true));
+//        error_log ('GetLoginAttemptsStatusIps handle, $params: '.var_export($params,true));
 
         if (is_array($params)){
 

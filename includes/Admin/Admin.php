@@ -2,6 +2,8 @@
 
 namespace GesimaticLoginAttempts\Admin;
 
+use GesimaticLoginAttempts\Translations\Translations;
+
 /**
  * Class AdminMenu.
  * 
@@ -70,7 +72,8 @@ class Admin {
                 "restUrl" => rest_url( '/gesimatic/v1/admin' ),
                 "nonce" => wp_create_nonce( 'wp_rest' ),
                 "availableRoles" => $roles,
-                "isSuperAdmin" => $isSuperAdmin
+                "isSuperAdmin" => $isSuperAdmin,
+                "translations" => Translations::admin_translations()
             )
         );
     }

@@ -10,7 +10,7 @@
  * Return:
  *          object success = {'items': number, 'pages' : number} fail = {} empty object
  */
-export const getPagination = async (restUrl, nonce, table, query ) => {
+export const getPagination = async (restUrl, nonce, query ) => {
     // create the header with the nonce token
     const headers = new Headers({
         'X-WP-Nonce': nonce 
@@ -18,8 +18,7 @@ export const getPagination = async (restUrl, nonce, table, query ) => {
 
     // create the FormData to store the Data of query
     let apiData = new FormData();
-    apiData.append('action','get_pagination');
-    apiData.append('table',table);
+    apiData.append('action','get_login_attempts_pagination');
 
     if ((query != undefined) && (query.filterStatus != undefined))
         apiData.append('filterStatus',query.filterStatus);

@@ -17,7 +17,7 @@ import { sprintf } from '@wordpress/i18n'; // execute 'npm install @wordpress/i1
 import { icons } from '../icons'
 import './StatusIps.css'
 
-export const StatusIps = ({restUrl, nonce }) => {
+export const StatusIps = ({restUrl, nonce, isShown }) => {
     
 
     // Estado para almacenar la clase y el contenido de las alertas
@@ -39,8 +39,9 @@ export const StatusIps = ({restUrl, nonce }) => {
 
 
     useEffect( () => {
-        updateStatus()
-    },[,query])
+        if (isShown)
+            updateStatus()
+    },[,query, isShown])
 
     const onClickIcon = (name) => {
         switch(name){
@@ -96,7 +97,10 @@ export const StatusIps = ({restUrl, nonce }) => {
             let newElement = {...element,action : false}
             newStatus = [...newStatus,newElement]            
         });
-        const newPagination = await getPagination(restUrl,nonce, 'login_status_ip', query);
+        const newPagination = await getPagination(restUrl,nonce, query);
+
+        console.log ('newPagination : ',newPagination);
+
         setStatusIps(newStatus);
         setDataPagination(newPagination);
 
@@ -109,17 +113,20 @@ export const StatusIps = ({restUrl, nonce }) => {
 
     }
 
+    useEffect(() => {
+        console.log ('actionString :', actionString)
+    },[actionString])
 
     const onClickAction = async (event) => {
-        
+
         let ids = event.target.id.split('-');
         let action = '';
         let string = '';
         if (event.target.innerHTML == actionString.unlock){
-            string = sprintf( gt('are_you_sure_to_apply_the_action','Are you sure to apply the %1$d action.'), actionString.unlock);
+            string = sprintf( gt('are_you_sure_to_apply_the_action','Are you sure to apply the %s action.'), actionString.unlock);
             action = 'unLock';
         } else {
-            string = sprintf( gt('are_you_sure_to_apply_the_action','Are you sure to apply the %1$d action.'), actionString.reset);
+            string = sprintf( gt('are_you_sure_to_apply_the_action','Are you sure to apply the %s action.'), actionString.reset);
             action = 'reset';
         } 
 

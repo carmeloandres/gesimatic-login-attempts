@@ -13,7 +13,7 @@
 */
 
 export const gt = (key, fallback = '') => {
-    return window.gesimaticAdmin?.translations?.[key] 
+    return window.gesimaticLoginAttemptsAdmin?.translations?.[key] 
         || fallback 
         || key;
 }
