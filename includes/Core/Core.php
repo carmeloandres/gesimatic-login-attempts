@@ -51,6 +51,16 @@ class Core extends Setup{
                 $tabs['gesimatic-login-attempts'] = esc_html__( 'Login attempts', 'gesimatic-login-attempts' );
             return $tabs;
         });
+        // adding protection to all plugins that requires the ip is not blocked
+        add_filter('gesimatic_is_ip_blocked',function ($blocked, $ip) {
+            return Security::is_ip_blocked($ip);
+        },10,2);
+
+        // enabling acces failure to all gesimatic apis
+        add_action('gesimatic_api_permissions_failure',[$this,'access_failure'],10,1);
+
+        // enabling acces succes to all gesimatic apis
+        add_action('gesimatic_api_permissions_success',[$this,'access_success'],10,1);
 
         // adds the admin api actions
         add_filter('gesimatic_admin_actions',[$this,'register_gesimatic_login_attempts_api_actions']);
@@ -168,39 +178,30 @@ class Core extends Setup{
      * @return void 
      */
     function loged_ip($user_login, $user){
-        global $wpdb;
-
-        $options = get_option(self::OPTION_SETTINGS,array());
-        
-        if (isset($options['enabled']) && ($options['enabled'] == true) && isset($options['logedInAlert']) && ($options['logedInAlert'] == true)){            
             
             $ip = Security::get_client_ip();
             
             // Reset ipStatus
-            $wpdb->delete(self::$table_name_status_ip,array('ip' => $ip));
+            $this->access_success($ip);
 
-            if(isset($user->roles) && isset($options['triggerRoles']) ){
+            $options = get_option(self::OPTION_SETTINGS,array());
 
-                $send_email = false;
+            if(isset($user->roles) && isset($options['logedInAlert']) && ($options['LogedInAlert'] == true) && isset($options['triggerRoles']) && is_array($options['triggerRoles']) && count($options['triggerRoles']) > 0){
+
                 foreach( $user->roles as $user_role)
+                    // if role is enabled to recibe alarms
                     if(in_array($user_role,$options['triggerRoles'])){
-                        $send_email = true;
+                        // Create and sendthe email alarm
+                        $subject = __('Access notification from','gesimatic-login-attempts').' '.$ip.' IP';
+            
+                        $body_title =__('Access notification','gesimatic-login-attempts');
+                        $body_content=__('Loged as','gesimatic-login-attempts').' '.$user_login.' '.__('user, from IP:','gesimatic-login-attempts').' '.$ip.PHP_EOL;
+                        $body_content.= __('This user is','gesimatic-login-attempts').' :'.translate_user_role($user_role);
+
+                        $this->send_formated_html_email_to_user($user->data->user_email,$subject, $body_title, $body_content);
                     }
-                // if role is enabled to recibe alarms
-                if($send_email){
-        
-                    // Create the email alarm
-                    $subject = __('Access notification from','gesimatic-login-attempts').' '.$ip.' IP';
-        
-                    $body_title =__('Access notification','gesimatic-login-attempts');
-                    $body_content=__('Loged as','gesimatic-login-attempts').' '.$user_login.' '.__('user, from IP:','gesimatic-login-attempts').' '.$ip.PHP_EOL;
-                    $body_content.= __('This user is','gesimatic-login-attempts').' :'.translate_user_role($user_role);
-
-                    $this->send_formated_html_email_to_user($user->data->user_email,$subject, $body_title, $body_content);
-
-                }
             }
-        }
+        //}
     }
 
     /**
@@ -404,9 +405,9 @@ class Core extends Setup{
      */
     function login_failed($user,$error): void{
 
-        $options = get_option(self::OPTION_SETTINGS);
+//        $options = get_option(self::OPTION_SETTINGS);
 
-        if (isset($options['enabled']) && ($options['enabled'] == true) ){
+//        if (isset($options['enabled']) && ($options['enabled'] == true) ){
             
             $ip = Security::get_client_ip();
 
@@ -414,8 +415,9 @@ class Core extends Setup{
             if(Security::is_ip_blocked($ip))
                 return;
 
+            $this->access_failed($ip);
             // spotlight to checks if the are queries of the option in process
-            $lock_time = 30; // Maximun time of bloqued in seconds
+/*            $lock_time = 30; // Maximun time of bloqued in seconds
             $retry_delay = 1; // Seconds to retry the query
 
             // wait until the transient expires or is deleted
@@ -453,7 +455,8 @@ class Core extends Setup{
                 
             // delete the spotlight to enabling the access to the option
             delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
-        }        
+*/
+      //  }        
     }
 
     /**
@@ -639,6 +642,66 @@ class Core extends Setup{
         return wp_mail($user_email, $subject, $email_template, $headers);
     }
 
+    /**
+     * This method increments the count of failed access attempts for an IP.
+     * 
+     * @param string $ip The IP address to increment the count for. 
+     * @return void
+     */
+    function access_failed($ip){
 
+            // spotlight to checks if the are queries of the option in process
+            $lock_time = 30; // Maximun time of bloqued in seconds
+            $retry_delay = 1; // Seconds to retry the query
 
+            // wait until the transient expires or is deleted
+            while (get_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
+                sleep($retry_delay);
+            }
+            // set the spotlight to  disabling the access to the option
+            set_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
+
+            $status = $this->get_ip_status($ip);
+                        
+            // update the user to the current user
+            $status['userLogin'] = $user;
+    
+            // increment the attempts
+            $status['attempts'] = intval($status['attempts']) + 1;
+            // gets the current time, seconds from 1/1/1070
+            $now = time();                
+            // update the lastAttempt 
+            $status['lastAttempt'] = $now;
+
+            //Checks the attempts values and proceed as expected
+            // are in break points
+            if(intval($status['attempts']) % intval($options['attempts']) == 0){
+
+                $until = $now + (intval($status['currentPeriod']) * 60);
+                $this->lock_ip($ip, $until); // adds the ip to the OPTION_BLOCKED_IPS
+                
+                $status['lockUntil'] = $until;
+                $status['currentPeriod'] = intval($options['multiplier']) * intval($status['currentPeriod']);
+                $status['status'] = 'bloqued';
+            }           
+
+            $this->set_ip_status($status);
+                
+            // delete the spotlight to enabling the access to the option
+            delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
+    }
+
+    /**
+     * This method resets the count of failed access attempts for an IP.
+     * 
+     * @param string $ip The IP address to reset the count for. 
+     * @return void
+     */
+    function access_success($ip){
+            global $wpdb;
+
+            // Reset ipStatus
+            $wpdb->delete(self::$table_name_status_ip,array('ip' => $ip));
+
+    }
 }
