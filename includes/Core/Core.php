@@ -509,7 +509,7 @@ class Core extends Setup{
     function lock_ip($ip, $until): void{
 
         $is_bloqued = false;
-        $bloquedIps = get_option(OPTION_BLOCKED_IPS,array());
+        $bloquedIps = get_option(self::OPTION_BLOCKED_IPS,array());
 
         // update the until time if the ip is yet bloqued
         foreach($bloquedIps as $bloqued){
@@ -525,7 +525,7 @@ class Core extends Setup{
                                     'until' => $until
             );
     
-        update_option(OPTION_BLOCKED_IPS,$bloquedIps);
+        update_option(self::OPTION_BLOCKED_IPS,$bloquedIps);
 
     }
     
