@@ -186,7 +186,7 @@ class Core extends Setup{
 
             $options = get_option(self::OPTION_SETTINGS,array());
 
-            if(isset($user->roles) && isset($options['logedInAlert']) && ($options['LogedInAlert'] == true) && isset($options['triggerRoles']) && is_array($options['triggerRoles']) && count($options['triggerRoles']) > 0){
+            if(isset($user->roles) && isset($options['logedInAlert']) && ($options['logedInAlert'] == true) && isset($options['triggerRoles']) && is_array($options['triggerRoles']) && count($options['triggerRoles']) > 0){
 
                 foreach( $user->roles as $user_role)
                     // if role is enabled to recibe alarms
@@ -405,7 +405,10 @@ class Core extends Setup{
      */
     function login_failed($user,$error): void{
 
-//        $options = get_option(self::OPTION_SETTINGS);
+            $options = get_option(self::OPTION_SETTINGS);
+
+            error_log ('GesimaticLoginAttempts Core->login_failed(), $options: '.var_export($options,true));
+
 
 //        if (isset($options['enabled']) && ($options['enabled'] == true) ){
             
@@ -415,9 +418,11 @@ class Core extends Setup{
             if(Security::is_ip_blocked($ip))
                 return;
 
-            $this->access_failed($ip);
+            error_log ('GesimaticLoginAttempts Core->login_failed(), $ip: '.var_export($ip,true));
+
+//            $this->access_failed($ip);
             // spotlight to checks if the are queries of the option in process
-/*            $lock_time = 30; // Maximun time of bloqued in seconds
+            $lock_time = 30; // Maximun time of bloqued in seconds
             $retry_delay = 1; // Seconds to retry the query
 
             // wait until the transient expires or is deleted
@@ -428,6 +433,8 @@ class Core extends Setup{
             set_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
 
             $status = $this->get_ip_status($ip);
+
+            error_log ('GesimaticLoginAttempts Core->login_failed(), $status: '.var_export($status,true));
                         
             // update the user to the current user
             $status['userLogin'] = $user;
@@ -455,7 +462,7 @@ class Core extends Setup{
                 
             // delete the spotlight to enabling the access to the option
             delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
-*/
+
       //  }        
     }
 
@@ -531,7 +538,7 @@ class Core extends Setup{
      */
     function set_ip_status($status){
         global $wpdb;
-    
+
         if (isset($status['id'])){
             $result = $wpdb->update(self::$table_name_status_ip, $status, array( 'id' => $status['id']));
         } else $result = $wpdb->insert(self::$table_name_status_ip, $status);
@@ -664,7 +671,7 @@ class Core extends Setup{
             $status = $this->get_ip_status($ip);
                         
             // update the user to the current user
-            $status['userLogin'] = $user;
+            $status['userLogin'] = 'Api_access';
     
             // increment the attempts
             $status['attempts'] = intval($status['attempts']) + 1;

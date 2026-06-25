@@ -11,7 +11,6 @@ export const GesimaticLoginAttemptsApp = () => {
 
   // state to manage the login attempts settings
     const [settings, setSettings] = useState({
-        enabled : false, // Enables or Disbles the Access Attempts protection
         attempts : 4, // max times of fail login before procede with a lock
         initialLock : 20, // initial period of time in minutes of a short lock
         multiplier: 2, //  Multiplier to increment the Periods of lock
@@ -34,15 +33,6 @@ export const GesimaticLoginAttemptsApp = () => {
         setSettings(data);
     
   },[])
-
-  useEffect(() => {
-//    if (settings.port != 587 && settings.port != 465 && settings.port != 25 ){
-  //      setSelectPortValue('custom')
-    //}
-    //else setSelectPortValue(settings.port)
- //   console.log ('settings :', settings);
-  },[settings])
-
 
 
 
@@ -100,18 +90,6 @@ export const GesimaticLoginAttemptsApp = () => {
                 <table className="form-table">
                     <tbody>
                         <tr>
-                            <th scope="row"><label >{gt('enable_disables_login_attempts_functionality','Enable / Disables login attempts functionality')}</label></th>
-                            <td>
-                                <ToggleSwitch
-                                    value={settings.enabled}
-                                    onChange={(newValue) => setSettings({...settings,enabled : newValue})}
-                                />
-                                <p className='description'>{(settings.enabled == true ) ? gt('enebled','Enabled') : gt('disbled','Disabled')}</p>
-                            </td>
-                        </tr>
-                        { settings.enabled &&
-                        <> 
-                        <tr>
                             <th scope="row"><label for="gsmtc-accessAttempts">{gt('acess_attempts_allowed','Access attempts allowed')}</label></th>
                             <td>
                                 <input type="number" id="gsmtc-accessAttempts" name="attempts" value={settings.attempts} min="1" max="10" step="1" onInput={(event) => setSettings(onInputNumber(event,settings))} />
@@ -131,13 +109,9 @@ export const GesimaticLoginAttemptsApp = () => {
                                 <input type="number" id="gsmtc-periodAttempts" name="multiplier" value={settings.multiplier} min="1" max="10" step="1" onInput={(event) => setSettings(onInputNumber(event,settings))}/>
                                 <p className='description' >{gt('multiplier_to_increase_the_blocking_period_in','Multiplier to increase the blocking period in successive blocks, without resetting.')}</p>
                             </td>
-                        </tr>
-                        </>
-                        }
+                        </tr>                    
                     </tbody> 
                 </table>
-                { settings.enabled &&
-                    <>
                         <p style={{fontWeight: 'bold'}}>
                             {sprintf(
                                     gt('after_failed_access_attempts','After %1$d failed access attempts from the same IP, access will be blocked for an initial period of %2$d minutes. If after this period another %1$d failed access attempts occur, the previous blocking period will be multiplied by %3$d and access will remain blocked during that period. This process continues until a successful login is achieved, at which point the failed access attempts for the IP are reset.'),
@@ -147,8 +121,6 @@ export const GesimaticLoginAttemptsApp = () => {
                                 )
                             }
                         </p>                    
-                    </>                 
-                }
                 <LogedInAlerts
                     logedInAlert={settings.logedInAlert}
                     triggerRoles={settings.triggerRoles}

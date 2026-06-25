@@ -44,8 +44,6 @@ class GetLoginAttemptsSettings extends Setup{
     
             $settings = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
 
-            error_log ('GetLoginAttemptsSettings handle, $settings: '.var_export($settings,true));
-  
         if (is_array($settings))
                 return new \WP_REST_Response($settings, 200);
             else return new \WP_REST_Response(self::DEFAULT_SETTINGS, 200);

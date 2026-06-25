@@ -38,7 +38,6 @@ class Setup {
      * @since 1
      */
     protected const DEFAULT_SETTINGS = [  
-        'enabled' => true,      // Enables the access login attempts funcionality 
 		'attempts' => 4,        // Set the fail access before start a lock period [1-100]
 		'initialLock' => 20,    // Set the initial period of lock in minutes    [1-100]
 		'multiplier' => 2,       // Set the multiplier to calculate the actual period of lock

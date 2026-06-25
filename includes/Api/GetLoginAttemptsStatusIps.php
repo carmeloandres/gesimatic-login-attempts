@@ -45,7 +45,7 @@ class GetLoginAttemptsStatusIps extends Setup{
 
                 $query = (array) $query; // convert object $settings to array
 
-//                error_log ('GetLoginAttemptsStatusIps validate, $query: '.var_export($query,true));
+                error_log ('GetLoginAttemptsStatusIps validate, $query: '.var_export($query,true));
 
                 // validate page
                 if(isset($query['page']) ){
@@ -53,14 +53,14 @@ class GetLoginAttemptsStatusIps extends Setup{
                     if ( (filter_var($sanitized_params['page'], FILTER_VALIDATE_INT) === false) || ( 0 >= (int) $sanitized_params['page'])) return false;
                 }else return false;
 
-//                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
 
                 // validate orderAttempts
                 if(isset($query['orderAttempts']) ){
                     $sanitized_params['orderAttempts'] = sanitize_text_field($query['orderAttempts']);
                     if ( ! in_array($sanitized_params['orderAttempts'],self::VALID_ORDERS)) return false;
                 }else return false;
-//                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
+                error_log ('GetLoginAttemptsStatusIps validate, $sanitized_params: '.var_export($sanitized_params,true));
 
 
                 // validate orderLockPeriod
@@ -99,13 +99,13 @@ class GetLoginAttemptsStatusIps extends Setup{
 
     	global $wpdb;
 
-//        error_log ('GetLoginAttemptsStatusIps handle, $params: '.var_export($params,true));
+        error_log ('GetLoginAttemptsStatusIps handle, $params: '.var_export($params,true));
 
         if (is_array($params)){
 
             $result = array();
 
-            self::reload_blocked_ips();
+//            self::reload_blocked_ips();
 
             $page = intval($params['page']);
 
@@ -135,7 +135,13 @@ class GetLoginAttemptsStatusIps extends Setup{
 
             // get status ips
             $sql = "SELECT * FROM " . self::$table_name_status_ip . " " . $filterQuery . $orderQuery . " LIMIT %d OFFSET %d";
-            $results = $wpdb->get_results($wpdb->prepare($sql, self::$per_page, $offset), ARRAY_A);
+            $query = $wpdb->prepare($sql, self::$per_page, $offset);
+            error_log ('GetLoginAttemptsStatusIps handle, $sql: '.var_export($sql,true));
+            error_log ('GetLoginAttemptsStatusIps handle, $query: '.var_export($query,true));
+
+            $results = $wpdb->get_results($query, ARRAY_A);
+
+        error_log ('GetLoginAttemptsStatusIps handle, $results: '.var_export($results,true));
 
             //sending the rest time to unblock
 			$now = time();
@@ -154,6 +160,8 @@ class GetLoginAttemptsStatusIps extends Setup{
 				$new_results[] = $result;
 			}
 			$results = $new_results;
+
+            error_log ('GetLoginAttemptsStatusIps handle, $new_results: '.var_export($new_results,true));
 
              return new \WP_REST_Response($results, 200);
 

@@ -29,8 +29,7 @@ export const getLoginAttemptsSettings = async (restUrl, nonce ) => {
     // recive the resquest from api and obtain the json data
     if (resp.ok){
         return await resp.json();
-    } else return { enabled : false, // Enables or Disbles the Access Attempts protection
-                    attempts : 4, // max times of fail login before procede with a lock
+    } else return { attempts : 4, // max times of fail login before procede with a lock
                     initialLock : 20, // initial period of time in minutes of a short lock
                     multiplier: 2, //  Multiplier to increment the Periods of lock
                     logedInAlert : true, //Sets the alert (sendig an email) at loged in user
