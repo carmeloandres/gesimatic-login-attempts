@@ -51,7 +51,6 @@ class Security extends Setup{
         $updated_blocked_ips = false;
         // gets the current time
         $now = time();
-        error_log ('GesimaticLoginAttempts Security->is_ip_blocked(), $ip: ' . $ip . ', $now: ' . $now . ', $blockedIps: ' . var_export($blockedIps,true));
 
         // checks if ip is in blockedIps array 
         foreach ($blockedIps as $blocked){
@@ -76,7 +75,6 @@ class Security extends Setup{
         // delete the spotlight to enabling the access to the option
         delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
 
-        error_log ('GesimaticLoginAttempts Security->is_ip_blocked(), $blockedIp: ' . var_export($blockedIp,true));
 
         return $blockedIp;
 

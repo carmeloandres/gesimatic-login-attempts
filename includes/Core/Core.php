@@ -57,7 +57,7 @@ class Core extends Setup{
         },10,2);
 
         // enabling acces failure to all gesimatic apis
-        add_action('gesimatic_api_permissions_failure',[$this,'access_failure'],10,1);
+        add_action('gesimatic_api_permissions_failure',[$this,'access_failed'],10,1);
 
         // enabling acces succes to all gesimatic apis
         add_action('gesimatic_api_permissions_success',[$this,'access_success'],10,1);
@@ -213,7 +213,7 @@ class Core extends Setup{
      */
     function login_errors_message($errors): string{
 
-        $options = get_option(self::OPTION_SETTINGS);
+        $options = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
 
 
             $ip = Security::get_client_ip();
@@ -245,10 +245,7 @@ class Core extends Setup{
         // to check previous errors
         if (is_wp_error($user)) {
            return $user;
-        }
-        
-        $settings = get_option(self::OPTION_SETTINGS,array()); 
-        
+        }      
 
             // Gesimatic Login Attempts uses REMOTE_ADDR by default. 
             // If the site is behind Cloudflare or a reverse proxy, 
@@ -277,8 +274,6 @@ class Core extends Setup{
      */
     function login_message($message){
         
-        $options = get_option(self::OPTION_SETTINGS); 
-
         $ip = Security::get_client_ip();
     
         $status = $this->get_ip_status($ip);
@@ -325,7 +320,9 @@ class Core extends Setup{
                 languageSwitchers.forEach(switcher => {switcher.style.display = 'none';})
                 }</script>";
         }else {
-    
+
+                $options = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS); 
+
                 $rest_attempts = intval($options['attempts']) - (intval($status['attempts']) % intval($options['attempts']));
                        
                 $message = '<div id="gsmtc-login-message" class="notice notice-info message"><p>';
@@ -397,22 +394,14 @@ class Core extends Setup{
      */
     function login_failed($user,$error): void{
 
-            $options = get_option(self::OPTION_SETTINGS);
-
-            error_log ('GesimaticLoginAttempts Core->login_failed(), $options: '.var_export($options,true));
-
-
-//        if (isset($options['enabled']) && ($options['enabled'] == true) ){
-            
+            $options = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
+         
             $ip = Security::get_client_ip();
 
             // is previously bloqued ends
             if(Security::is_ip_blocked($ip))
                 return;
 
-            error_log ('GesimaticLoginAttempts Core->login_failed(), $ip: '.var_export($ip,true));
-
-//            $this->access_failed($ip);
             // spotlight to checks if the are queries of the option in process
             $lock_time = 30; // Maximun time of bloqued in seconds
             $retry_delay = 1; // Seconds to retry the query
@@ -473,12 +462,12 @@ class Core extends Setup{
      */
     function get_ip_status($ip){
         global $wpdb;
-    
-        $query = "SELECT * FROM ".self::$table_name_status_ip." WHERE ip = '".$ip."'";
-        $result = $wpdb->get_row($query,ARRAY_A);
+
+        $query = $wpdb->prepare("SELECT * FROM " . self::$table_name_status_ip . " WHERE ip = %s", $ip);
+        $result = $wpdb->get_row($query, ARRAY_A);
         if ($result == null){
 
-            $options = get_option(self::OPTION_SETTINGS);
+            $options = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
 
             $result = array (
                 'userLogin' => '',
@@ -507,21 +496,27 @@ class Core extends Setup{
         $is_blocked = false;
         $blockedIps = get_option(self::OPTION_BLOCKED_IPS,array());
 
+        $newBlockedIps = array();
+
         // update the until time if the ip is yet blocked
         foreach($blockedIps as $blocked){
             if ($blocked['ip'] == $ip ){
-                $blocked['until'] = $until;
+                $newBlockedIp = $blocked;
+                $newBlockedIp['until'] = $until;
+                $newBlockedIps[] = $newBlockedIp;
                 $is_blocked = true;
+            } else {
+                $newBlockedIps[] = $blocked;
             }
         }
         // adds the ip to the blocked_ips array to set as blocked ip
         if (! $is_blocked)
-            $blockedIps[] = array(
+            $newBlockedIps[] = array(
                                     'ip' => $ip,
                                     'until' => $until
             );
     
-        update_option(self::OPTION_BLOCKED_IPS,$blockedIps);
+        update_option(self::OPTION_BLOCKED_IPS,$newBlockedIps);
 
     }
     
@@ -649,9 +644,15 @@ class Core extends Setup{
      * This method increments the count of failed access attempts for an IP.
      * 
      * @param string $ip The IP address to increment the count for. 
+     * @param string $identifier The identifier for the endpoint where the failed access occurred. 
+     * 
      * @return void
      */
     function access_failed($ip){
+
+            // is previously bloqued ends
+            if(Security::is_ip_blocked($ip))
+                return;
 
             // spotlight to checks if the are queries of the option in process
             $lock_time = 30; // Maximun time of bloqued in seconds
@@ -665,9 +666,10 @@ class Core extends Setup{
             set_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
 
             $status = $this->get_ip_status($ip);
+            $options = get_option(self::OPTION_SETTINGS);
                         
             // update the user to the current user
-            $status['userLogin'] = 'Api_access';
+            $status['userLogin'] = 'Api access';
     
             // increment the attempts
             $status['attempts'] = intval($status['attempts']) + 1;
@@ -685,7 +687,7 @@ class Core extends Setup{
                 
                 $status['lockUntil'] = $until;
                 $status['currentPeriod'] = intval($options['multiplier']) * intval($status['currentPeriod']);
-                $status['status'] = 'bloqued';
+                $status['status'] = 'blocked';
             }           
 
             $this->set_ip_status($status);

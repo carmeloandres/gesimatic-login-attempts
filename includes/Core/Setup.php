@@ -198,18 +198,6 @@ class Setup {
     public static function unlock_ip($ip){
         global $wpdb;
 
-        // spotlight to checks if the are queries of the option in process
-        $lock_time = 30; // Maximun time of blocked in seconds
-        $retry_delay = 1; // Seconds to retry the query
-
-        // wait until the transient expires or is deleted
-        while (get_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
-            sleep($retry_delay);
-        }
-
-        // set the spotlight to disabling the access to the option
-        set_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
-
         $status = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . self::$table_name_status_ip . " WHERE ip = %s", $ip), ARRAY_A);
         $now = time();
         $result = false;
@@ -224,9 +212,6 @@ class Setup {
         } else {
             $result = false;
         }
-
-        // delete the spotlight to enabling the access to the option
-        delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
 
         return $result;
     }
