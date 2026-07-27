@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getLoginAttemptsSettings, gt, onInputNumber, setLoginAttemptsSettings} from '../helpers';
-import { GesimaticAccordion, LogedInAlerts, StatusIps, ToggleSwitch } from '../components';
+import { getLoginAttemptsSettings, gt, onInputNumber, setLoginAttemptsSettings} from './helpers';
+import { GesimaticAccordion, LogedInAlerts, StatusIps, ToggleSwitch } from './components';
 import { sprintf } from '@wordpress/i18n'; // execute 'npm install @wordpress/i18n' to install library
 import './GesimaticLoginAttemptsApp.css'
 
@@ -30,6 +30,7 @@ export const GesimaticLoginAttemptsApp = () => {
 
   useEffect(async () => {
         let data = await getLoginAttemptsSettings(restUrl, nonce);
+        console.log ('useEffect getLoginAttemptsSettings data:', data);
         setSettings(data);
     
   },[])

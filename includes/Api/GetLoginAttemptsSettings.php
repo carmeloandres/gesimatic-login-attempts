@@ -2,6 +2,7 @@
 
 namespace GesimaticLoginAttempts\Api;
 
+use Gesimatic\Api\Controllers\ActionInterface;
 use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
@@ -14,7 +15,7 @@ use GesimaticLoginAttempts\Core\Setup;
  *
  * @package gesimatic-login-attempts
  */
-class GetLoginAttemptsSettings extends Setup{
+class GetLoginAttemptsSettings extends Setup implements ActionInterface{
 
     /**
      * To validate 
@@ -24,12 +25,9 @@ class GetLoginAttemptsSettings extends Setup{
      */
     public static function validate($params){
 
-//        error_log ('GetLoginAttemptsSettings validate, $params: '.var_export($params,true));
-
-        // check if acction is as expected
-        if(isset($params['action']) && ($params['action'] === 'get_login_attempts_settings')){
+        // There are not parameters to validate, then return true
+    
             return true;
-        } else return false;
     }
 
     /**
@@ -44,12 +42,18 @@ class GetLoginAttemptsSettings extends Setup{
     
             $settings = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
 
-        if (is_array($settings))
-                return new \WP_REST_Response($settings, 200);
-            else return new \WP_REST_Response(self::DEFAULT_SETTINGS, 200);
-        } else return CommonResponse::error();
+            $data['success'] = true;
+            $data['message'] = 'Settings retrieved successfully';
 
+            if (is_array($settings)){
+                $data['settings'] = $settings;
+                return $data;
+            }
+            else {
+                $data['settings'] = self::DEFAULT_SETTINGS;
+                return $data;
+            }
+        }
     }
-
 
 }

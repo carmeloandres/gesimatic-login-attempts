@@ -18,7 +18,7 @@ export const getPagination = async (restUrl, nonce, query ) => {
 
     // create the FormData to store the Data of query
     let apiData = new FormData();
-    apiData.append('action','get_login_attempts_pagination');
+//    apiData.append('action','get-login-attempts-pagination');
 
     if ((query != undefined) && (query.filterStatus != undefined))
         apiData.append('filterStatus',query.filterStatus);
@@ -26,7 +26,7 @@ export const getPagination = async (restUrl, nonce, query ) => {
  
 
     // send the query to the api endpoint
-    const resp = await fetch(restUrl,{
+    const resp = await fetch(restUrl+'/get-login-attempts-pagination',{
         method: 'POST',
         headers: headers,
         body:apiData

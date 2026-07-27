@@ -2,6 +2,7 @@
 
 namespace GesimaticLoginAttempts\Api;
 
+use Gesimatic\Api\Controllers\ActionInterface;
 use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
@@ -14,7 +15,7 @@ use GesimaticLoginAttempts\Core\Setup;
  *
  * @package gesimatic-smtp
  */
-class SetLoginAttemptsSettings extends Setup{
+class SetLoginAttemptsSettings extends Setup implements ActionInterface{
     
     /**
      * To validate 

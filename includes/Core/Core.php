@@ -137,15 +137,28 @@ class Core extends Setup{
 
         $new_actions = $actions;
 
+        $new_actions['get-login-attempts-settings'] = GetLoginAttemptsSettings::class;              
+
+        $new_actions['set-login-attempts-settings'] = SetLoginAttemptsSettings::class;              
+
+        $new_actions['get-login-attempts-status-ips'] = GetLoginAttemptsStatusIps::class;
+
+        $new_actions['get-login-attempts-pagination'] = GetLoginAttemptsPagination::class;
+
+        $new_actions['do-login-attempts-status-ips'] = DoLoginAttemptsStatusIpsAction::class;
+
+
+/*
+        $new_actions['get_login_attempts_settings'] = [
+            'validate' => [GetLoginAttemptsSettings::class, 'validate'],
+            'handle' => [GetLoginAttemptsSettings::class, 'handle'],
+        ];              
+
         $new_actions['set_login_attempts_settings'] = [
             'validate' => [SetLoginAttemptsSettings::class, 'validate'],
             'handle' => [SetLoginAttemptsSettings::class, 'handle'],
         ];
        
-        $new_actions['get_login_attempts_settings'] = [
-            'validate' => [GetLoginAttemptsSettings::class, 'validate'],
-            'handle' => [GetLoginAttemptsSettings::class, 'handle'],
-        ];              
 
         $new_actions['get_login_attempts_status_ips'] = [
             'validate' => [GetLoginAttemptsStatusIps::class, 'validate'],
@@ -161,7 +174,7 @@ class Core extends Setup{
             'validate' => [DoLoginAttemptsStatusIpsAction::class, 'validate'],
             'handle' => [DoLoginAttemptsStatusIpsAction::class, 'handle'],
         ];
-
+*/
         //        error_log ('Gesimatic-login-attempts Core register_gesimatic_login_attempts_api_actions(), $new_actions: '.var_export($new_actions,true));
 
         return $new_actions;

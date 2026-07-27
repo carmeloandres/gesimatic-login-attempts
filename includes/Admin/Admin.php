@@ -2,6 +2,7 @@
 
 namespace GesimaticLoginAttempts\Admin;
 
+use Gesimatic\Core\Config;
 use GesimaticLoginAttempts\Translations\Translations;
 
 /**
@@ -69,7 +70,7 @@ class Admin {
             'gesimatic-login-attempts-admin-js',
             'gesimaticLoginAttemptsAdmin',
             array(
-                "restUrl" => rest_url( '/gesimatic/v1/admin' ),
+                "restUrl" => rest_url( Config::ROUTE_NAMESPACE_GESIMATIC_ADMIN ),
                 "nonce" => wp_create_nonce( 'wp_rest' ),
                 "availableRoles" => $roles,
                 "isSuperAdmin" => $isSuperAdmin,

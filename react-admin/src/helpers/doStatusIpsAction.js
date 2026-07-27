@@ -20,14 +20,14 @@ export const doStatusIpsAction = async (restUrl, nonce, action, ids =[] ) => {
 
     // create the FormData to store the Data of query
     let apiData = new FormData();
-    apiData.append('action','do_login_attempts_status_ips_action');
+//    apiData.append('action','do-login-attempts-status-ips-action');
     apiData.append('doAction',action);
     apiData.append('ids',JSON.stringify(ids))
     //apiData.append('ids',ids.toString());
 
 
     // send the query to the api endpoint
-    const resp = await fetch(restUrl,{
+    const resp = await fetch(restUrl+'/do-login-attempts-status-ips-action',{
         method: 'POST',
         headers: headers,
         body:apiData

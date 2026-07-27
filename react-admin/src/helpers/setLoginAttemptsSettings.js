@@ -18,12 +18,12 @@ export const setLoginAttemptsSettings = async (restUrl, nonce, settings ) => {
 
     // create the FormData to store the Data of query
     let apiData = new FormData();
-    apiData.append('action','set_login_attempts_settings');
+//    apiData.append('action','set-login-attempts-settings');
     apiData.append('settings',JSON.stringify({...settings}));
 
 
     // send the query to the api endpoint
-    const resp = await fetch(restUrl,{
+    const resp = await fetch(restUrl+'/set-login-attempts-settings',{
         method: 'POST',
         headers: headers,
         body:apiData

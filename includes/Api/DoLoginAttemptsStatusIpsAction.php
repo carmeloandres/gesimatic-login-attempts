@@ -2,6 +2,7 @@
 
 namespace GesimaticLoginAttempts\Api;
 
+use Gesimatic\Api\Controllers\ActionInterface;
 use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
@@ -14,7 +15,7 @@ use GesimaticLoginAttempts\Core\Setup;
  *
  * @package gesimatic-login-attempts
  */
-class DoLoginAttemptsStatusIpsAction extends Setup{
+class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
 
     /**
      * valid action values.
