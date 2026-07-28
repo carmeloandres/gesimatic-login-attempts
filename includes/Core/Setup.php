@@ -2,6 +2,8 @@
 
 namespace GesimaticLoginAttempts\Core;
 
+use GesimaticLoginAttempts\Core\Config;
+
 
 /**
  * Class Setup.
@@ -30,20 +32,21 @@ class Setup {
      * @var string
      * @since 1
      */
-    protected const OPTION_SETTINGS = 'gesimatic_login_attempts_settings';
+//    protected const OPTION_SETTINGS = 'gesimatic_login_attempts_settings';
 
      /**
      * Default settings value.
      * @var array
      * @since 1
      */
-    protected const DEFAULT_SETTINGS = [  
+/*    protected const DEFAULT_SETTINGS = [  
 		'attempts' => 4,        // Set the fail access before start a lock period [1-100]
 		'initialLock' => 20,    // Set the initial period of lock in minutes    [1-100]
 		'multiplier' => 2,       // Set the multiplier to calculate the actual period of lock
         'logedInAlert' => true,  // Set the loged in alert in true
         'triggerRoles' => array('administrator') // set the role of alerts to administrators only
     ];
+*/
 
      /**
      * Spotlight to use when quering option blocked ips
@@ -125,7 +128,7 @@ class Setup {
         
         $wpdb->query($query);
 
-        delete_option(self::OPTION_SETTINGS);
+        delete_option(Config::OPTION_SETTINGS);
 
         delete_option(self::OPTION_BLOCKED_IPS); 
      }
@@ -173,15 +176,10 @@ class Setup {
      */
     private static function create_option_settings(): void{    
 
-        $option = array( 	'enabled' => true,      // Enables the access limit attempts funcionality 
-							'attempts' => 4,        // Set the fail access before start a lock period [1-100]
-							'initialLock' => 20,    // Set the initial period of lock in minutes    [1-100]
-							'multiplier' => 2,       // Set the multiplier to calculate the actual period of lock
-                            'logedInAlert' => true,  // Set the loged in alert in true
-                            'triggerRoles' => array('administrator') // set the role of alerts to administrators only
-                          );    
-
-        update_option(self::OPTION_SETTINGS, $option, true);
+        // Check if the option already exists, if not create it with default settings
+        $settings = get_option(Config::OPTION_SETTINGS);
+        if ($settings === false)
+            update_option(Config::OPTION_SETTINGS, Config::DEFAULT_SETTINGS, true);
     }
 
 

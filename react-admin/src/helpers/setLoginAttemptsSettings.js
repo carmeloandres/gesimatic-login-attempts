@@ -31,8 +31,8 @@ export const setLoginAttemptsSettings = async (restUrl, nonce, settings ) => {
 
     // recive the resquest from api and obtain the json data
     if (resp.ok){
-        
-        return await resp.json();
+        let data = await resp.json();
+        return data;
 
     } else return false
 }

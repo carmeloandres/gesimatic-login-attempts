@@ -2,11 +2,12 @@
 
 namespace GesimaticLoginAttempts\Api;
 
+
 use Gesimatic\Api\Controllers\ActionInterface;
 use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
-use GesimaticLoginAttempts\Core\Setup;
+use GesimaticLoginAttempts\Core\Config;
 
 /**
  * Class Setup
@@ -15,7 +16,7 @@ use GesimaticLoginAttempts\Core\Setup;
  *
  * @package gesimatic-login-attempts
  */
-class GetLoginAttemptsSettings extends Setup implements ActionInterface{
+class GetLoginAttemptsSettings implements ActionInterface{
 
     /**
      * To validate 
@@ -40,7 +41,7 @@ class GetLoginAttemptsSettings extends Setup implements ActionInterface{
 
         if ($validated){
     
-            $settings = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
+            $settings = get_option(Config::OPTION_SETTINGS, Config::DEFAULT_SETTINGS);
 
             $data['success'] = true;
             $data['message'] = 'Settings retrieved successfully';
@@ -50,7 +51,7 @@ class GetLoginAttemptsSettings extends Setup implements ActionInterface{
                 return $data;
             }
             else {
-                $data['settings'] = self::DEFAULT_SETTINGS;
+                $data['settings'] = Config::DEFAULT_SETTINGS;
                 return $data;
             }
         }
