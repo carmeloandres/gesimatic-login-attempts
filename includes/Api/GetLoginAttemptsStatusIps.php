@@ -7,6 +7,8 @@ use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
 use GesimaticLoginAttempts\Core\Setup;
+use GesimaticLoginAttempts\Security\Security;
+use GesimaticLoginAttempts\Core\Config;
 
 /**
  * Class Setup
@@ -81,7 +83,7 @@ class GetLoginAttemptsStatusIps extends Setup implements ActionInterface{
                 // validate FilterStatus
                 if(isset($query['filterStatus']) ){
                     $sanitized_params['filterStatus'] = sanitize_text_field($query['filterStatus']);
-                    if ( ! in_array($sanitized_params['filterStatus'],self::VALID_FILTERS)) return false;
+                    if ( ! in_array($sanitized_params['filterStatus'],Config::VALID_FILTERS)) return false;
                 }else return false;
 
             } else return false;
@@ -106,7 +108,7 @@ class GetLoginAttemptsStatusIps extends Setup implements ActionInterface{
 
             $result = array();
 
-//            self::reload_blocked_ips();
+//            Security::reload_blocked_ips();
 
             $page = intval($params['page']);
 
@@ -154,7 +156,7 @@ class GetLoginAttemptsStatusIps extends Setup implements ActionInterface{
 				} else if ($result['status'] != 'enabled'){
 						$result['lockUntil'] = 0;
 						$result['status'] = 'enabled';
-                        self::unlock_ip($result['ip']);
+                        Security::unlock_ip($result['ip']);
 					}
 				// send the seconds from lastAttempt to syncronize with client clock
 				$result['lastAttempt'] = $now - intval($result['lastAttempt']);

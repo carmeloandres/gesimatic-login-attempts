@@ -9,6 +9,7 @@ use GesimaticLoginAttempts\Api\GetLoginAttemptsSettings;
 use GesimaticLoginAttempts\Api\GetLoginAttemptsStatusIps;
 use GesimaticLoginAttempts\Api\SetLoginAttemptsSettings;
 use GesimaticLoginAttempts\Core\Setup;
+use GesimaticLoginAttempts\Core\Config;
 use GesimaticLoginAttempts\Security\Security;
 
 /**
@@ -197,7 +198,7 @@ class Core extends Setup{
             // Reset ipStatus
             $this->access_success($ip);
 
-            $options = get_option(self::OPTION_SETTINGS,array());
+            $options = get_option(Config::OPTION_SETTINGS,array());
 
             if(isset($user->roles) && isset($options['logedInAlert']) && ($options['logedInAlert'] == true) && isset($options['triggerRoles']) && is_array($options['triggerRoles']) && count($options['triggerRoles']) > 0){
 
@@ -226,7 +227,7 @@ class Core extends Setup{
      */
     function login_errors_message($errors): string{
 
-        $options = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
+        $options = get_option(Config::OPTION_SETTINGS,Config::DEFAULT_SETTINGS);
 
 
             $ip = Security::get_client_ip();
@@ -334,7 +335,7 @@ class Core extends Setup{
                 }</script>";
         }else {
 
-                $options = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS); 
+                $options = get_option(Config::OPTION_SETTINGS,Config::DEFAULT_SETTINGS);
 
                 $rest_attempts = intval($options['attempts']) - (intval($status['attempts']) % intval($options['attempts']));
                        
@@ -407,7 +408,7 @@ class Core extends Setup{
      */
     function login_failed($user,$error): void{
 
-            $options = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
+            $options = get_option(Config::OPTION_SETTINGS,Config::DEFAULT_SETTINGS);
          
             $ip = Security::get_client_ip();
 
@@ -420,11 +421,11 @@ class Core extends Setup{
             $retry_delay = 1; // Seconds to retry the query
 
             // wait until the transient expires or is deleted
-            while (get_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
+            while (get_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
                 sleep($retry_delay);
             }
             // set the spotlight to  disabling the access to the option
-            set_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
+            set_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
 
             $status = $this->get_ip_status($ip);
 
@@ -459,7 +460,7 @@ class Core extends Setup{
             $this->set_ip_status($status);
                 
             // delete the spotlight to enabling the access to the option
-            delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
+            delete_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS);
 
       //  }        
     }
@@ -480,7 +481,7 @@ class Core extends Setup{
         $result = $wpdb->get_row($query, ARRAY_A);
         if ($result == null){
 
-            $options = get_option(self::OPTION_SETTINGS,self::DEFAULT_SETTINGS);
+            $options = get_option(Config::OPTION_SETTINGS,Config::DEFAULT_SETTINGS);
 
             $result = array (
                 'userLogin' => '',
@@ -507,7 +508,7 @@ class Core extends Setup{
     function lock_ip($ip, $until): void{
 
         $is_blocked = false;
-        $blockedIps = get_option(self::OPTION_BLOCKED_IPS,array());
+        $blockedIps = get_option(Config::OPTION_BLOCKED_IPS,array());
 
         $newBlockedIps = array();
 
@@ -529,7 +530,7 @@ class Core extends Setup{
                                     'until' => $until
             );
     
-        update_option(self::OPTION_BLOCKED_IPS,$newBlockedIps);
+        update_option(Config::OPTION_BLOCKED_IPS,$newBlockedIps);
 
     }
     
@@ -672,14 +673,14 @@ class Core extends Setup{
             $retry_delay = 1; // Seconds to retry the query
 
             // wait until the transient expires or is deleted
-            while (get_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
+            while (get_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
                 sleep($retry_delay);
             }
             // set the spotlight to  disabling the access to the option
-            set_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
+            set_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
 
             $status = $this->get_ip_status($ip);
-            $options = get_option(self::OPTION_SETTINGS);
+            $options = get_option(Config::OPTION_SETTINGS);
                         
             // update the user to the current user
             $status['userLogin'] = 'Api access';
@@ -706,7 +707,7 @@ class Core extends Setup{
             $this->set_ip_status($status);
                 
             // delete the spotlight to enabling the access to the option
-            delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
+            delete_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS);
     }
 
     /**

@@ -7,6 +7,7 @@ use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
 use GesimaticLoginAttempts\Core\Setup;
+use GesimaticLoginAttempts\Security\Security;
 
 /**
  * Class DoLoginAttemptsStatusIpsAction
@@ -85,7 +86,7 @@ class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
                     }
                 }
             }
-            self::reload_blocked_ips();
+            Security::reload_blocked_ips();
 
         } else return CommonResponse::error();
 

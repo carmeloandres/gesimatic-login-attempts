@@ -30,7 +30,6 @@ export const GesimaticLoginAttemptsApp = () => {
 
   useEffect(async () => {
         let data = await getLoginAttemptsSettings(restUrl, nonce);
-        console.log ('useEffect getLoginAttemptsSettings data:', data);
         setSettings(data);
     
   },[])
@@ -44,7 +43,7 @@ export const GesimaticLoginAttemptsApp = () => {
 
         const result = await setLoginAttemptsSettings(restUrl, nonce, settings)
 
-        console.log ('onSubmit :', result);
+        // console.log ('onSubmit :', result);
 
 
         if ( result.success ){
@@ -137,7 +136,6 @@ export const GesimaticLoginAttemptsApp = () => {
                 </p>
             </form>
         </GesimaticAccordion>
-        <div style={{display: (settings.enabled)? 'block' : 'none'}}>
         <GesimaticAccordion
             showHide={showStatusIps}
             title={gt('status_ips','Status ips')}
@@ -151,7 +149,6 @@ export const GesimaticLoginAttemptsApp = () => {
                 isShown={showStatusIps}
             />
         </GesimaticAccordion>
-        </div>
             <div className="gsmtc-notice gsmtc-notice-info">
                 <p>{gt('this_plugin_temporarily_stores_the_IP','This plugin temporarily stores the IP addresses of failed login attempts to prevent brute-force attacks. IPs are automatically deleted after a successful login. We recommend including this information in your Privacy Policy.')}</p>
             </div>                

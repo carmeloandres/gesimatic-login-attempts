@@ -3,6 +3,7 @@
 namespace GesimaticLoginAttempts\Security;
 
 use GesimaticLoginAttempts\Core\Setup;
+use GesimaticLoginAttempts\Core\Config;
 
 /**
  * Class Security.
@@ -34,17 +35,17 @@ class Security extends Setup{
         $retry_delay = 1; // Seconds to retry the query
 
         // wait until the transient expires or is deleted
-        while (get_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
+        while (get_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
             sleep($retry_delay);
         }
 
         // set the spotlight to disabling the access to the option
-        set_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
+        set_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
 
         // default return value
         $blockedIp = false;
         // get the gsmtc_blocked_ips option
-        $blockedIps = get_option(self::OPTION_BLOCKED_IPS,array());
+        $blockedIps = get_option(Config::OPTION_BLOCKED_IPS,array());
         // creates an array to store the new blocked ips
         $newBlockedIps = array();
         // boolean to checks if blocked_ips has been changed
@@ -70,15 +71,95 @@ class Security extends Setup{
         } ;
     
         if ($updated_blocked_ips)
-            update_option(self::OPTION_BLOCKED_IPS,$newBlockedIps);
+            update_option(Config::OPTION_BLOCKED_IPS,$newBlockedIps);
 
         // delete the spotlight to enabling the access to the option
-        delete_transient(self::SPOTLIGHT_QUERING_BLOCKED_IPS);
+        delete_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS);
 
 
         return $blockedIp;
 
     }
 
+
+
+   /**
+     * Method unlock_ip
+     *
+     * This method update the status of a blocked Ip to unlock.
+     *
+     * This method is used by both children classes
+     *
+     * @params ip The ip to unlock
+     * @return boolean
+     */
+    public static function unlock_ip($ip){
+        global $wpdb;
+
+        $status = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . self::$table_name_status_ip . " WHERE ip = %s", $ip), ARRAY_A);
+        $now = time();
+        $result = false;
+
+        if (($status != null) && (intval($status['lockUntil']) < $now)){
+            $status['lockUntil'] = 0;
+            $status['status'] = 'enabled';
+
+            $update = $wpdb->update(self::$table_name_status_ip,$status,array('id' => $status['id']));
+            if (false !== $update)
+                $result = true;
+        } else {
+            $result = false;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Method reload_blocked_ips
+     *
+     * This method updates the option gsmtc_blocked_ips from table login_status_ip and check if all blocked ips are still blocked.
+     *
+     * @params void
+     * @return void
+     */
+    public static function reload_blocked_ips(){
+        global $wpdb;
+
+        // spotlight to checks if the are queries of the option in process
+        $lock_time = 30; // Maximun time of blocked in seconds
+        $retry_delay = 1; // Seconds to retry the query
+
+        // wait until the transient expires or is deleted
+        while (get_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
+            sleep($retry_delay);
+        }
+
+        // set the spotlight to disabling the access to the option
+        set_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
+
+        $query = "SELECT * FROM ".self::$table_name_status_ip." WHERE status = 'blocked'";
+        $results = $wpdb->get_results($query,ARRAY_A);
+        $blockedIps = array();
+        $now = time();
+        foreach($results as $result){
+            if (intval($result['lockUntil']) > $now){
+                $blockedIp = array(
+                    'ip' => $result['ip'],
+                    'until' => $result['lockUntil']
+                );
+                $blockedIps[] = $blockedIp;
+            } else {
+                $result['lockUntil'] = 0;
+                $result['status'] = 'enabled';
+                $wpdb->update(self::$table_name_status_ip,$result,array('id' => $result['id']));
+            }
+        }
+        // create the gsmtc_blocked_ips
+		update_option(Config::OPTION_BLOCKED_IPS,$blockedIps);
+
+        // delete the spotlight to enabling the access to the option
+        delete_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS);
+
+    }
 
     }

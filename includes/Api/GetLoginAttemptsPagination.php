@@ -7,6 +7,7 @@ use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
 use GesimaticLoginAttempts\Core\Setup;
+use GesimaticLoginAttempts\Core\Config;
 
 /**
  * Class Setup
@@ -35,7 +36,7 @@ class GetLoginAttemptsPagination extends Setup implements ActionInterface{
                 // validate FilterStatus
                 if(isset($params['filterStatus']) ){
                     $sanitized_params['filterStatus'] = sanitize_text_field($params['filterStatus']);
-                    if ( ! in_array($sanitized_params['filterStatus'],self::VALID_FILTERS)) return false;
+                    if ( ! in_array($sanitized_params['filterStatus'],Config::VALID_FILTERS)) return false;
                 }else return false;
         } else return false;
 
