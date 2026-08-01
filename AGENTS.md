@@ -30,7 +30,7 @@ Lee los siguientes documentos en este orden cuando la tarea afecte a esas áreas
 2. docs/ai/common/02-architecture.md
 3. docs/ai/common/03-wordpress.md
 4. docs/ai/common/04-security.md
-5. dics/ai/plugin.md
+5. docs/ai/plugin.md
 
 ---
 
