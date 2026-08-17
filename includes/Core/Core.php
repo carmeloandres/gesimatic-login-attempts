@@ -3,11 +3,6 @@
 namespace GesimaticLoginAttempts\Core;
 
 use GesimaticLoginAttempts\Admin\Admin;
-use GesimaticLoginAttempts\Api\DoLoginAttemptsStatusIpsAction;
-use GesimaticLoginAttempts\Api\GetLoginAttemptsPagination;
-use GesimaticLoginAttempts\Api\GetLoginAttemptsSettings;
-use GesimaticLoginAttempts\Api\GetLoginAttemptsStatusIps;
-use GesimaticLoginAttempts\Api\SetLoginAttemptsSettings;
 use GesimaticLoginAttempts\Core\Setup;
 use GesimaticLoginAttempts\Core\Config;
 use GesimaticLoginAttempts\Security\Security;
@@ -22,11 +17,40 @@ use GesimaticLoginAttempts\Security\Security;
 class Core extends Setup{
 
     /**
+     * Property to store an instance of itself.
+     *
+     * @var
+     */
+    private static $instance;
+
+    /**
+     * Array to store all the modules.
+     *
+     * @var array
+     */
+    protected array $modules = [];
+
+    /**
      * Array to store dinamicaly the instances of each class when they are required.
      *
      * @var array
      */
     protected array $instances = [];
+
+    /**
+     * To get an instance of this object to prevent duplicity
+     * 
+     * @param void
+     * @return self
+     */
+    public static function instance(): self {
+        // if this object not exists
+        if (self::$instance === null) {
+            // creates a new object, executing the contructor
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
 
    /**
      * Class constructor.
@@ -38,20 +62,25 @@ class Core extends Setup{
         //call to parent constructor
         parent::__construct();
 
+        // Loads the code using this hook
+        add_action('plugins_loaded', [$this, 'init'], 0);
+
         // To register the gesimatic-login-attempts admin page
-        add_action('admin_menu',[$this,'register_admin_page']);
+//        add_action('admin_menu',[$this,'register_admin_page']);
 
         // to load the smtp admin assets
-        add_action('admin_enqueue_scripts',[$this,'admin_enqueue_assets'], 10, 1);
+//        add_action('admin_enqueue_scripts',[$this,'admin_enqueue_assets'], 10, 1);
 
         // Gesimatic menu highlighting using CSS/JS
-        add_action( 'admin_head', [ $this, 'force_menu_highlight' ] );
+//        add_action( 'admin_head', [ $this, 'force_menu_highlight' ] );
 
         // adding the login attempts to gesimatic admin page
-        add_filter( 'gesimatic_admin_tabs', function( $tabs ) {
+/*        add_filter( 'gesimatic_admin_tabs', function( $tabs ) {
                 $tabs['gesimatic-login-attempts'] = esc_html__( 'Login attempts', 'gesimatic-login-attempts' );
             return $tabs;
         });
+*/
+
         // adding protection to all plugins that requires the ip is not blocked
         add_filter('gesimatic_is_ip_blocked',function ($blocked, $ip) {
             return Security::is_ip_blocked($ip);
@@ -64,7 +93,7 @@ class Core extends Setup{
         add_action('gesimatic_api_permissions_success',[$this,'access_success'],10,1);
 
         // adds the admin api actions
-        add_filter('gesimatic_admin_actions',[$this,'register_gesimatic_login_attempts_api_actions']);
+//        add_filter('gesimatic_admin_actions',[$this,'register_gesimatic_login_attempts_api_actions']);
 
 
         // checks if the ip is not bloqued
@@ -82,104 +111,68 @@ class Core extends Setup{
         // Resets the login_status_ip and update the loged_ip table
         add_action('wp_login',array($this,'loged_ip'),10,2);
 
-
-
     }
 
-    /**
-     * Loads the Admin class to register the gesimatic-login-attempts admin page
+   /**
+     * To register and init all Gesimatic modules
      * 
      * @param void
      * @return void
      */
-    function register_admin_page(): void{
+    public function init(): void {
 
-        // Load the Admin class if not is loaded
-        if (! isset($this->instances['admin']))
-            $this->instances['admin'] = new Admin();
-        $this->instances['admin']->register_admin_page();
+        $this->register_modules();
+
+        // Admin solo en backend
+        if (is_admin()) {
+            $this->get_module('admin')->init();
+        }
+
+        // API solo cuando se usa REST
+        add_action('rest_api_init', function () {
+            $this->get_module('api')->init();
+        });
+
+
+
+        // Modules and hooks loaded always, to load the translations
+
+//        $this->register_updates();
+
+        // Load the plugin text domain for translations
+        load_plugin_textdomain(
+            'gesimatic-login-attempts',
+            false,
+            '/gesimatic-login-attempts/languages'//Relative path to WP_PLUGIN_DIR where the .mo file resides. 
+        );
+
     }
 
-    /**
-     * Loads the Admin class to enqueue the gesimatic-smtp assets
-     * 
-     * @param void
-     * @return void
-     */
-    function admin_enqueue_assets($hook): void{
+    protected function register_modules(): void {
 
-        // Load the Admin class if not is loaded
-        if (! isset($this->instances['admin']))
-            $this->instances['admin'] = new Admin();
-        $this->instances['admin']->admin_enqueue_assets($hook);
+        $this->modules = [
+            'api'   => \Gesimatic\Api\Api::class,
+            'admin' => \Gesimatic\Admin\Admin::class,
+        ];
     }
 
-    /**
-     * Force highlighting of the main menu using CSS/JS when on a hidden modular page.
-     * 
-     * @param void
-     * @return void
-     */
-    function force_menu_highlight(): void{
+   public function get_module(string $key) {
 
-        // Load the Admin class if not is loaded
-        if (! isset($this->instances['admin']))
-            $this->instances['admin'] = new Admin();
-        $this->instances['admin']->force_menu_highlight();
+        // if the module has not an instance
+        if (!isset($this->instances[$key])) {
+            // Checks if it is registered, 
+            if (!isset($this->modules[$key])) {
+                return null;
+            }
+            // and then create an instance
+            $this->instances[$key] = new $this->modules[$key]();
+        }
+
+        return $this->instances[$key];
     }
 
-    /**
-     * Registers the gesimatic login attempts api actions
-     * 
-     * @param array 
-     * @return array
-     */
-    public function register_gesimatic_login_attempts_api_actions($actions){
-
-        $new_actions = $actions;
-
-        $new_actions['get-login-attempts-settings'] = GetLoginAttemptsSettings::class;              
-
-        $new_actions['set-login-attempts-settings'] = SetLoginAttemptsSettings::class;              
-
-        $new_actions['get-login-attempts-status-ips'] = GetLoginAttemptsStatusIps::class;
-
-        $new_actions['get-login-attempts-pagination'] = GetLoginAttemptsPagination::class;
-
-        $new_actions['do-login-attempts-status-ips'] = DoLoginAttemptsStatusIpsAction::class;
 
 
-/*
-        $new_actions['get_login_attempts_settings'] = [
-            'validate' => [GetLoginAttemptsSettings::class, 'validate'],
-            'handle' => [GetLoginAttemptsSettings::class, 'handle'],
-        ];              
-
-        $new_actions['set_login_attempts_settings'] = [
-            'validate' => [SetLoginAttemptsSettings::class, 'validate'],
-            'handle' => [SetLoginAttemptsSettings::class, 'handle'],
-        ];
-       
-
-        $new_actions['get_login_attempts_status_ips'] = [
-            'validate' => [GetLoginAttemptsStatusIps::class, 'validate'],
-            'handle' => [GetLoginAttemptsStatusIps::class, 'handle'],
-        ];
-
-        $new_actions['get_login_attempts_pagination'] = [
-            'validate' => [GetLoginAttemptsPagination::class, 'validate'],
-            'handle' => [GetLoginAttemptsPagination::class, 'handle'],
-        ];
-
-        $new_actions['do_login_attempts_status_ips_action'] = [
-            'validate' => [DoLoginAttemptsStatusIpsAction::class, 'validate'],
-            'handle' => [DoLoginAttemptsStatusIpsAction::class, 'handle'],
-        ];
-*/
-        //        error_log ('Gesimatic-login-attempts Core register_gesimatic_login_attempts_api_actions(), $new_actions: '.var_export($new_actions,true));
-
-        return $new_actions;
-    }
 
 
     /**
@@ -720,7 +713,7 @@ class Core extends Setup{
             global $wpdb;
 
             // Reset ipStatus
-            $wpdb->delete(self::$table_name_status_ip,array('ip' => $ip));
+            $wpdb->delete($wpdb->prefix . Config::TABLE_NAME_STATUS_IP,array('ip' => $ip));
 
     }
 }

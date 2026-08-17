@@ -64,4 +64,12 @@ class Config {
         'triggerRoles' => array('administrator') // set the role of alerts to administrators only
     ];
 
+    /**
+     * Number of items per page in a paged query.
+     *
+     * @var int
+     * @since 1
+     */
+    public const PER_PAGE = 15;
+
 }

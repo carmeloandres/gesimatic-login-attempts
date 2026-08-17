@@ -12,6 +12,22 @@ use GesimaticLoginAttempts\Translations\Translations;
 */
 class Admin {
 
+   public function init(): void {
+
+       // To register the gesimatic-smtp admin page
+        add_action('admin_menu',[$this,'register_admin_page']);
+        // to load the smtp admin assets
+        add_action('admin_enqueue_scripts',[$this,'admin_enqueue_assets'], 10, 1);
+        // Gesimatic menu highlighting using CSS/JS
+        add_action( 'admin_head', [ $this, 'force_menu_highlight' ] );
+        // adding the smtp to gesimatic admin page
+        add_filter( 'gesimatic_admin_tabs', function( $tabs ) {
+            $tabs['gesimatic-login-attempts'] = esc_html__( 'Login attempts', 'gesimatic-login-attempts' );
+            return $tabs;
+        });
+
+    }
+
     /**
      * Register the gesimatic-login-atttempts module page.
      */
