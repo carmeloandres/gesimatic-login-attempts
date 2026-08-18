@@ -96,7 +96,7 @@ class Security extends Setup{
     public static function unlock_ip($ip){
         global $wpdb;
 
-        $status = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . self::$table_name_status_ip . " WHERE ip = %s", $ip), ARRAY_A);
+        $status = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . $wpdb->prefix . Config::TABLE_NAME_STATUS_IP . " WHERE ip = %s", $ip), ARRAY_A);
         $now = time();
         $result = false;
 
@@ -104,7 +104,7 @@ class Security extends Setup{
             $status['lockUntil'] = 0;
             $status['status'] = 'enabled';
 
-            $update = $wpdb->update(self::$table_name_status_ip,$status,array('id' => $status['id']));
+            $update = $wpdb->update($wpdb->prefix . Config::TABLE_NAME_STATUS_IP,$status,array('id' => $status['id']));
             if (false !== $update)
                 $result = true;
         } else {
@@ -137,7 +137,7 @@ class Security extends Setup{
         // set the spotlight to disabling the access to the option
         set_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
 
-        $query = "SELECT * FROM ".self::$table_name_status_ip." WHERE status = 'blocked'";
+        $query = "SELECT * FROM ".$wpdb->prefix . Config::TABLE_NAME_STATUS_IP." WHERE status = 'blocked'";
         $results = $wpdb->get_results($query,ARRAY_A);
         $blockedIps = array();
         $now = time();
@@ -151,7 +151,7 @@ class Security extends Setup{
             } else {
                 $result['lockUntil'] = 0;
                 $result['status'] = 'enabled';
-                $wpdb->update(self::$table_name_status_ip,$result,array('id' => $result['id']));
+                $wpdb->update($wpdb->prefix . Config::TABLE_NAME_STATUS_IP,$result,array('id' => $result['id']));
             }
         }
         // create the gsmtc_blocked_ips

@@ -11,9 +11,9 @@
  * Plugin Name: Gesimatic-Login-Attempts
  * Plugin URI:  https://gesimatic.com/wordpress/plugin/gesimatic-login-attempts
  * Description: Gesimatic module/plugin to protect login access by limiting attempts
- * Version:     01
+ * Version:     1.0.0
  * Requires at least: 	6.2
- * Requires PHP:      	7.0
+ * Requires PHP:      	7.4
  * Author:      Carmelo Andrés
  * Author URI:  https://carmeloandres.com
  * Text Domain: gesimatic-login-attempts
@@ -27,17 +27,33 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants
-define('GESIMATIC_LOGIN_ATTEMPTS_VERSION',60);
+define('GESIMATIC_LOGIN_ATTEMPTS_VERSION','1.0.1');
 define('GESIMATIC_LOGIN_ATTEMPTS_PATH',plugin_dir_path(__FILE__));
 define('GESIMATIC_LOGIN_ATTEMPTS_URL',plugin_dir_url(__FILE__));
+
+/*
+ * Composer autoload.
+ */
+$autoload_file = GESIMATIC_LOGIN_ATTEMPTS_PATH . 'vendor/autoload.php';
+
+if ( ! is_readable( $autoload_file ) ) {
+    return;
+}
+
+require_once $autoload_file;
+
+/*
+ * Plugin bootstrap.
+ */
+GesimaticLoginAttempts\Core\Core::instance();
+
+// activate the plugin
+register_activation_hook(__FILE__,[\GesimaticLoginAttempts\Core\Setup::class, 'activate']);
 
 /**
  * Autoload dependencies via Composer.
  */
-require_once GESIMATIC_LOGIN_ATTEMPTS_PATH . 'vendor/autoload.php';
+//require_once GESIMATIC_LOGIN_ATTEMPTS_PATH . 'vendor/autoload.php';
 
 // Load plugin core logic
-$gesimatic_login_attempts = new \GesimaticLoginAttempts\Core\Core();
-
-// activate the plugin
-register_activation_hook(__FILE__,[\GesimaticLoginAttempts\Core\Setup::class, 'activate']);
+//$gesimatic_login_attempts = new \GesimaticLoginAttempts\Core\Core();

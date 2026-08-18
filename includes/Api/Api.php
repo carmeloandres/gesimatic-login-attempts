@@ -1,6 +1,6 @@
 <?php
 
-namespace Gesimatic\Api;
+namespace GesimaticLoginAttempts\Api;
 
 use GesimaticLoginAttempts\Api\DoLoginAttemptsStatusIpsAction;
 use GesimaticLoginAttempts\Api\GetLoginAttemptsPagination;

@@ -2,7 +2,7 @@
 
 namespace GesimaticLoginAttempts\Api;
 
-use Gesimatic\Api\Controllers\ActionInterface;
+use Gesimatic\Api\ActionInterface;
 use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
@@ -40,7 +40,7 @@ class GetLoginAttemptsStatusIps extends Setup implements ActionInterface{
         $sanitized_params = array();
 
         // check if acction is as expected
-        if(isset($params['action']) && ($params['action'] === 'get_login_attempts_status_ips')){
+        if(isset($params['action']) && ($params['action'] === 'get-login-attempts-status-ips')){
             if(isset($params['query'])){
                 
                 $query = json_decode($params['query']);
@@ -137,7 +137,7 @@ class GetLoginAttemptsStatusIps extends Setup implements ActionInterface{
 	        $offset = ($page - 1) * intval(self::$per_page);
 
             // get status ips
-            $sql = "SELECT * FROM " . self::$table_name_status_ip . " " . $filterQuery . $orderQuery . " LIMIT %d OFFSET %d";
+            $sql = "SELECT * FROM " . $wpdb->prefix . Config::TABLE_NAME_STATUS_IP . " " . $filterQuery . $orderQuery . " LIMIT %d OFFSET %d";
             $query = $wpdb->prepare($sql, self::$per_page, $offset);
             error_log ('GetLoginAttemptsStatusIps handle, $sql: '.var_export($sql,true));
             error_log ('GetLoginAttemptsStatusIps handle, $query: '.var_export($query,true));

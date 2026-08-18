@@ -2,7 +2,7 @@
 
 namespace GesimaticLoginAttempts\Api;
 
-use Gesimatic\Api\Controllers\ActionInterface;
+use Gesimatic\Api\ActionInterface;
 use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
@@ -32,7 +32,7 @@ class GetLoginAttemptsPagination extends Setup implements ActionInterface{
         $sanitized_params = array();
 
         // check if acction is as expected
-        if(isset($params['action']) && ($params['action'] === 'get_login_attempts_pagination')){
+        if(isset($params['action']) && ($params['action'] === 'get-login-attempts-pagination')){
                 // validate FilterStatus
                 if(isset($params['filterStatus']) ){
                     $sanitized_params['filterStatus'] = sanitize_text_field($params['filterStatus']);
@@ -67,7 +67,7 @@ class GetLoginAttemptsPagination extends Setup implements ActionInterface{
 					$filterStatus = " WHERE status = 'enabled' ";
 				else $filterStatus = " WHERE status <> 'enabled' ";
         
-    $items = $wpdb->get_var( "SELECT COUNT(*) FROM " . self::$table_name_status_ip . " " . $filterStatus );
+    $items = $wpdb->get_var( "SELECT COUNT(*) FROM " . $wpdb->prefix . Config::TABLE_NAME_STATUS_IP . " " . $filterStatus );
 
 	        $pages = 0;
 			if (($items != NULL)){

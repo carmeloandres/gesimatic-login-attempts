@@ -3,7 +3,7 @@
 namespace GesimaticLoginAttempts\Api;
 
 
-use Gesimatic\Api\Controllers\ActionInterface;
+use Gesimatic\Api\ActionInterface;
 use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 

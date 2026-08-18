@@ -224,19 +224,58 @@ class Compilar{
             $fichero_index = $this->directorio_padre.'/'.$this->text_domain.'.php';
             $contenido = file_get_contents($fichero_index);
             $posicion_inicial = strpos($contenido, $cadena_a_buscar);
+            echo 'posicion_inicial : '.$posicion_inicial.PHP_EOL;
 
             if ($posicion_inicial !== false){
                 $posicion_siguiente = strpos($contenido,')',$posicion_inicial + $longitud_cadena_a_buscar);
                 $longitud_substring = $posicion_siguiente - ($posicion_inicial + $longitud_cadena_a_buscar);
-                $version = substr($contenido,$posicion_inicial + $longitud_cadena_a_buscar,$longitud_substring);
-                if (is_int(intval($version,10))){
-                    $nueva_version = intval($version,10) + 1;
-                    $cadena_a_sustituir = $cadena_a_buscar.$version.');';
-                    $cadena_substituta = $cadena_a_buscar.$nueva_version.');';
+                $version_original = substr($contenido,$posicion_inicial + $longitud_cadena_a_buscar,$longitud_substring);
+                $version_modificada = str_replace("'",'',$version_original);
+                $version_modificada = trim($version_modificada);
+                if (preg_match('/^\d+\.\d+\.\d+$/', $version_modificada) === 1){
+                    $nueva_version = $this->incrementSemanticVersion($version_modificada, 2);
+                    echo 'Nueva version : '.$nueva_version.PHP_EOL;
+                    $cadena_a_sustituir = $cadena_a_buscar.$version_original.');';
+                    $cadena_substituta = $cadena_a_buscar."'".$nueva_version."'".');';
                     $contenido_nuevo = substr_replace($contenido,$cadena_substituta,$posicion_inicial,strlen($cadena_a_sustituir));
                     file_put_contents($fichero_index,$contenido_nuevo);
                 }
             }
         }
+    }
+
+	/**
+	 * incrementSemanticVersion
+	 *
+	 * Este metodo incrementa la versión semántica del plugin. Respetando el formato mayor.menor.parche.
+	 * 
+	 * @param  string $version
+	 * @param  int $level
+	 * @return string
+	 */
+    function incrementSemanticVersion(string $version, int $level = 2): string
+    {
+        $parts = array_map('intval', explode('.', $version));
+
+        // Nos aseguramos de tener tres componentes.
+        $parts = array_pad($parts, 3, 0);
+
+        switch ($level) {
+            case 0: // Mayor
+                $parts[0]++;
+                $parts[1] = 0;
+                $parts[2] = 0;
+                break;
+
+            case 1: // Menor
+                $parts[1]++;
+                $parts[2] = 0;
+                break;
+
+            default: // Parche
+                $parts[2]++;
+        }
+
+        return implode('.', $parts);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace GesimaticLoginAttempts\Api;
 
-use Gesimatic\Api\Controllers\ActionInterface;
+use Gesimatic\Api\ActionInterface;
 use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
@@ -38,7 +38,7 @@ class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
         $sanitized_params = array();
 
         // check if acction is as expected
-        if(isset($params['action']) && ($params['action'] === 'do_login_attempts_status_ips_action')){
+        if(isset($params['action']) && ($params['action'] === 'do-login-attempts-status-ips-action')){
                 // validate doAction
                 if(isset($params['doAction']) ){
                     $sanitized_params['doAction'] = sanitize_text_field($params['doAction']);
@@ -75,14 +75,14 @@ class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
         if (is_array($validated)){
             foreach($validated['ids'] as $id){
                 if ($validated['doAction'] == 'reset'){
-                    $wpdb->delete(self::$table_name_status_ip,array('id' => $id));
+                    $wpdb->delete($wpdb->prefix . Config::TABLE_NAME_STATUS_IP,array('id' => $id));
                 } else {
-                    $status = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . self::$table_name_status_ip . " WHERE id = %d", (int) $id ), ARRAY_A );
+                    $status = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . $wpdb->prefix . Config::TABLE_NAME_STATUS_IP . " WHERE id = %d", (int) $id ), ARRAY_A );
 
                     if ( is_array( $status ) ) {
                         $status['lockUntil'] = 0;
                         $status['status'] = 'enabled';
-                        $wpdb->update(self::$table_name_status_ip,$status,array('id' => $id));
+                        $wpdb->update($wpdb->prefix . Config::TABLE_NAME_STATUS_IP,$status,array('id' => $id));
                     }
                 }
             }

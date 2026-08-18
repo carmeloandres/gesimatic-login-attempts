@@ -3,7 +3,6 @@
 namespace GesimaticLoginAttempts\Core;
 
 use GesimaticLoginAttempts\Admin\Admin;
-use GesimaticLoginAttempts\Core\Setup;
 use GesimaticLoginAttempts\Core\Config;
 use GesimaticLoginAttempts\Security\Security;
 
@@ -14,7 +13,7 @@ use GesimaticLoginAttempts\Security\Security;
  *
  * @package GesimaticLoginAttempts\Core.
  */
-class Core extends Setup{
+class Core {
 
     /**
      * Property to store an instance of itself.
@@ -60,7 +59,7 @@ class Core extends Setup{
     function __construct()
     {
         //call to parent constructor
-        parent::__construct();
+//        parent::__construct();
 
         // Loads the code using this hook
         add_action('plugins_loaded', [$this, 'init'], 0);
@@ -151,8 +150,8 @@ class Core extends Setup{
     protected function register_modules(): void {
 
         $this->modules = [
-            'api'   => \Gesimatic\Api\Api::class,
-            'admin' => \Gesimatic\Admin\Admin::class,
+            'api'   => \GesimaticLoginAttempts\Api\Api::class,
+            'admin' => \GesimaticLoginAttempts\Admin\Admin::class,
         ];
     }
 
@@ -470,7 +469,7 @@ class Core extends Setup{
     function get_ip_status($ip){
         global $wpdb;
 
-        $query = $wpdb->prepare("SELECT * FROM " . self::$table_name_status_ip . " WHERE ip = %s", $ip);
+        $query = $wpdb->prepare("SELECT * FROM " . $wpdb->prefix . Config::TABLE_NAME_STATUS_IP . " WHERE ip = %s", $ip);
         $result = $wpdb->get_row($query, ARRAY_A);
         if ($result == null){
 
@@ -538,8 +537,8 @@ class Core extends Setup{
         global $wpdb;
 
         if (isset($status['id'])){
-            $result = $wpdb->update(self::$table_name_status_ip, $status, array( 'id' => $status['id']));
-        } else $result = $wpdb->insert(self::$table_name_status_ip, $status);
+            $result = $wpdb->update($wpdb->prefix . Config::TABLE_NAME_STATUS_IP, $status, array( 'id' => $status['id']));
+        } else $result = $wpdb->insert($wpdb->prefix . Config::TABLE_NAME_STATUS_IP, $status);
 
         if ($result != null)
             return true;
