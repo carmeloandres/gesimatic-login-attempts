@@ -7,7 +7,7 @@ import './GesimaticLoginAttemptsApp.css'
 export const GesimaticLoginAttemptsApp = () => {
 
   // It gets the credentials for access to the API
-  const { restUrl, nonce, availableRoles, isSuperAdmin } = gesimaticLoginAttemptsAdmin;
+  const { restUrl, nonce, availableRoles, isMultisite } = gesimaticLoginAttemptsAdmin;
 
   // state to manage the login attempts settings
     const [settings, setSettings] = useState({
@@ -57,22 +57,6 @@ export const GesimaticLoginAttemptsApp = () => {
 
     }
     
-    const onUpdateNetwork = async () => {
-
-        setAlert({class:'gsmtc-notice gsmtc-notice-info',content:gt('updating_network','Updating network.. Please wait')});
-
-        let newSettings = {...settings, updateNetwork : true}
-        const result = await setSmtpSettings(restUrl, nonce, newSettings)
-
-        if ( result ){
-            setAlert({class:'gsmtc-notice gsmtc-notice-success',content:gt('the_network_has_been_updated_successfull','The network has been updated successfull')})
-            setTimeout(() => {
-                setAlert({class:'gsmtc-notice-fade-out',content:gt('the_information_has_been','The information has been updated successfull')});
-                setTimeout(() => {setAlert({class:'gsmtc-display-none',content:''})},1000);
-            },4000);
-        } else setAlert({class:'gsmtc-notice gsmtc-notice-error',content:gt('the_network_has_not_been_updated','The network has not been updated')})
-    }
-
     const onChangeTriggerAlerts = (newLogedAlerts, newTriggerRoles) => {
         setSettings({...settings,logedInAlert : newLogedAlerts, triggerRoles: newTriggerRoles})
     }
@@ -86,6 +70,16 @@ export const GesimaticLoginAttemptsApp = () => {
                 closedLabel={gt('show_settings','Show settings')}
                 onChange={setShowAccessAttempts}
             >
+            {isMultisite && (
+                <div className="notice notice-warning inline">
+                    <p>
+                        {gt(
+                            'shared_ip_network_warning',
+                            'Advertencia: los intentos y bloqueos se comparten en toda la red. Los usuarios que compartan una IP pública (oficinas, universidades, VPN o CGNAT) pueden quedar bloqueados en todos los sitios por la actividad de una sola persona.'
+                        )}
+                    </p>
+                </div>
+            )}
             <form onSubmit={onSubmit}>
                 <table className="form-table">
                     <tbody>
@@ -132,7 +126,6 @@ export const GesimaticLoginAttemptsApp = () => {
                 </div>            
                 <p className='submit'>
                     <input type="submit" name="submit-attempts" id="submit-attempts" className="button button-primary" value={ gt('update_ettings','Update settings') } style={{marginRight: "25px"}}/>
-                    { (isSuperAdmin ) && <input type="button" name="submit-attempts-network" id="submit-attempts-network" className="button button-primary" value={ gt('update_all_network','Update all network') }  onClick={onUpdateAttemptsNetwork} /> }
                 </p>
             </form>
         </GesimaticAccordion>
@@ -143,6 +136,11 @@ export const GesimaticLoginAttemptsApp = () => {
             closedLabel={gt('show_status_ips','Show status ips')}
             onChange={setShowStatusIps}
         >
+            {isMultisite && (
+                <p className="description">
+                    {gt('network_status_scope', 'Intentos y bloqueos de toda la red.')}
+                </p>
+            )}
             <StatusIps
                 restUrl={restUrl}
                 nonce={nonce}

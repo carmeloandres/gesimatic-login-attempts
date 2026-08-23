@@ -1,13 +1,19 @@
 <?php
-/**
-* @package gesimatic-login-attempts
-*/
 
 /**
- *  Sentence to ensure it is procesed as a wordpress request
-*/
-if(! defined('WP_UNINSTALL_PLUGIN')){exit;}
+ * Gesimatic Login Attempts uninstall handler.
+ *
+ * @package GesimaticLoginAttempts
+ */
 
-require_once __DIR__ . '/includes/Core/Setup.php';
+defined('WP_UNINSTALL_PLUGIN') || exit;
 
-\GesimaticServer\Core\Setup::delete();
+$autoload_file = __DIR__ . '/vendor/autoload.php';
+
+if (!is_readable($autoload_file)) {
+    return;
+}
+
+require_once $autoload_file;
+
+GesimaticLoginAttempts\Core\Setup::delete();

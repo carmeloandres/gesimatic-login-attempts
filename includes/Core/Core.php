@@ -2,8 +2,10 @@
 
 namespace GesimaticLoginAttempts\Core;
 
+use Gesimatic\Core\OptionManager;
 use GesimaticLoginAttempts\Admin\Admin;
 use GesimaticLoginAttempts\Core\Config;
+use GesimaticLoginAttempts\Repositories\LoginAttemptsRepository;
 use GesimaticLoginAttempts\Security\Security;
 
 /**
@@ -107,7 +109,7 @@ class Core {
         // Custom the error message
         add_filter('login_errors',array($this,'login_errors_message'),10,1);
 
-        // Resets the login_status_ip and update the loged_ip table
+        // A successful login on any site resets this IP for the entire network.
         add_action('wp_login',array($this,'loged_ip'),10,2);
 
     }
@@ -175,8 +177,10 @@ class Core {
 
 
     /**
-     * Resets an ip, it means tha the ip is erased in table table_name_status_ip
-     * and update the last loged date ip.
+     * Resets the network-wide status for the authenticated IP.
+     *
+     * In Multisite, a successful login on any site clears the attempts and
+     * blocking state for this IP across the entire network.
      * 
      * @param string $user_login the username of the loged user.
      * @param WP_User $user, the user information object
@@ -190,7 +194,7 @@ class Core {
             // Reset ipStatus
             $this->access_success($ip);
 
-            $options = get_option(Config::OPTION_SETTINGS,array());
+            $options = OptionManager::get(Config::OPTION_SETTINGS, Config::DEFAULT_SETTINGS);
 
             if(isset($user->roles) && isset($options['logedInAlert']) && ($options['logedInAlert'] == true) && isset($options['triggerRoles']) && is_array($options['triggerRoles']) && count($options['triggerRoles']) > 0){
 
@@ -219,7 +223,7 @@ class Core {
      */
     function login_errors_message($errors): string{
 
-        $options = get_option(Config::OPTION_SETTINGS,Config::DEFAULT_SETTINGS);
+        $options = OptionManager::get(Config::OPTION_SETTINGS, Config::DEFAULT_SETTINGS);
 
 
             $ip = Security::get_client_ip();
@@ -327,7 +331,7 @@ class Core {
                 }</script>";
         }else {
 
-                $options = get_option(Config::OPTION_SETTINGS,Config::DEFAULT_SETTINGS);
+                $options = OptionManager::get(Config::OPTION_SETTINGS, Config::DEFAULT_SETTINGS);
 
                 $rest_attempts = intval($options['attempts']) - (intval($status['attempts']) % intval($options['attempts']));
                        
@@ -345,49 +349,6 @@ class Core {
         return $message;
     }
 
-        /**
-     * This method checks if the ip is bloqued.
-     * 
-     * @param string The ip to checks if is bloqued
-
-     * @return boolean 
-     */
-/*    function is_bloqued_ip($ip){
-
-        // default return value
-        $bloquedIp = false;
-        // get the gsmtc_bloqued_ips option
-        $bloquedIps = get_option('gsmtc_bloqued_ips',array());
-        // creates am array to store the new bloqued ips
-        $newBloquedIps = array();
-        // boolean to checks if bloqued_ips has been changed
-        $updated_bloqued_ips = false;
-        // gets the current time
-        $now = time();
-
-        // checks if ip is in bloquedIps array 
-        foreach ($bloquedIps as $bloqued){
-            // To checks if an ip is bloqued, it must check two values, if the ip is in array.
-            if ($bloqued['ip'] == $ip){
-                // and if bloqued time hasn`t expired, the current time is minor than "until" bloqued time
-                if ($now < intval($bloqued['until'])){
-                    $bloquedIp = true;
-                    $newBloquedIps[] = $bloqued;
-                } else {// the current time is higher than "until" bloqued time it must unlock the ip
-                    $this->unlock_ip($bloqued['ip']);
-                    $updated_bloqued_ips = true;
-                }
-            } else {
-                $newBloquedIps[] = $bloqued;
-            }
-        } ;
-    
-        if ($updated_bloqued_ips)
-            update_option('gsmtc_bloqued_ips',$newBloquedIps);
-
-        return $bloquedIp;
-    }
-*/
      /**
      * Method login_failed
      * 
@@ -400,61 +361,15 @@ class Core {
      */
     function login_failed($user,$error): void{
 
-            $options = get_option(Config::OPTION_SETTINGS,Config::DEFAULT_SETTINGS);
-         
-            $ip = Security::get_client_ip();
+        $ip = Security::get_client_ip();
 
-            // is previously bloqued ends
-            if(Security::is_ip_blocked($ip))
-                return;
+        if (Security::is_ip_blocked($ip)) {
+            return;
+        }
 
-            // spotlight to checks if the are queries of the option in process
-            $lock_time = 30; // Maximun time of bloqued in seconds
-            $retry_delay = 1; // Seconds to retry the query
-
-            // wait until the transient expires or is deleted
-            while (get_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
-                sleep($retry_delay);
-            }
-            // set the spotlight to  disabling the access to the option
-            set_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
-
-            $status = $this->get_ip_status($ip);
-
-            // update the user to the current user
-            $status['userLogin'] = $user;
-            
-            // increment the attempts
-            $status['attempts'] = intval($status['attempts']) + 1;
-            // gets the current time, seconds from 1/1/1070
-            $now = time();                
-            // update the lastAttempt 
-            $status['lastAttempt'] = $now;
-            
-            error_log ('GesimaticLoginAttempts Core->login_failed(), $status: '.var_export($status,true));
-                        
-            //Checks the attempts values and proceed as expected
-            // are in break points
-            if(intval($status['attempts']) % intval($options['attempts']) == 0){
-
-                $until = $now + (intval($status['currentPeriod']) * 60);
-                error_log ('GesimaticLoginAttempts Core->login_failed(), $until: '.var_export($until,true));
-
-                $this->lock_ip($ip, $until); // adds the ip to the OPTION_BLOCKED_IPS
-                
-                $status['lockUntil'] = $until;
-                $status['currentPeriod'] = intval($options['multiplier']) * intval($status['currentPeriod']);
-                $status['status'] = 'blocked';
-            }           
-
-            error_log ('GesimaticLoginAttempts Core->login_failed(), $status: '.var_export($status,true));
-
-            $this->set_ip_status($status);
-                
-            // delete the spotlight to enabling the access to the option
-            delete_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS);
-
-      //  }        
+        $options = OptionManager::get(Config::OPTION_SETTINGS, Config::DEFAULT_SETTINGS);
+        LoginAttemptsRepository::record_failed_attempt($ip, (string) $user, $options);
+        Security::clear_request_cache($ip);
     }
 
     /**
@@ -469,11 +384,11 @@ class Core {
     function get_ip_status($ip){
         global $wpdb;
 
-        $query = $wpdb->prepare("SELECT * FROM " . $wpdb->prefix . Config::TABLE_NAME_STATUS_IP . " WHERE ip = %s", $ip);
+        $query = $wpdb->prepare("SELECT * FROM " . LoginAttemptsRepository::table_name() . " WHERE ip = %s", $ip);
         $result = $wpdb->get_row($query, ARRAY_A);
         if ($result == null){
 
-            $options = get_option(Config::OPTION_SETTINGS,Config::DEFAULT_SETTINGS);
+            $options = OptionManager::get(Config::OPTION_SETTINGS, Config::DEFAULT_SETTINGS);
 
             $result = array (
                 'userLogin' => '',
@@ -487,62 +402,6 @@ class Core {
         }
 
         return $result;
-    }
-
-      /**
-     * This method sets an Ip as bloqued.
-     * 
-     * @param string The ip to checks if is bloqued
-     * @param string The until time to block the ip represented in seconds
-     * 
-     * @return void 
-     */
-    function lock_ip($ip, $until): void{
-
-        $is_blocked = false;
-        $blockedIps = get_option(Config::OPTION_BLOCKED_IPS,array());
-
-        $newBlockedIps = array();
-
-        // update the until time if the ip is yet blocked
-        foreach($blockedIps as $blocked){
-            if ($blocked['ip'] == $ip ){
-                $newBlockedIp = $blocked;
-                $newBlockedIp['until'] = $until;
-                $newBlockedIps[] = $newBlockedIp;
-                $is_blocked = true;
-            } else {
-                $newBlockedIps[] = $blocked;
-            }
-        }
-        // adds the ip to the blocked_ips array to set as blocked ip
-        if (! $is_blocked)
-            $newBlockedIps[] = array(
-                                    'ip' => $ip,
-                                    'until' => $until
-            );
-    
-        update_option(Config::OPTION_BLOCKED_IPS,$newBlockedIps);
-
-    }
-    
-  /**
-     * This method sets to the database the ip status.
-     * 
-     * @param array status of the ip
-
-     * @return boolean
-     */
-    function set_ip_status($status){
-        global $wpdb;
-
-        if (isset($status['id'])){
-            $result = $wpdb->update($wpdb->prefix . Config::TABLE_NAME_STATUS_IP, $status, array( 'id' => $status['id']));
-        } else $result = $wpdb->insert($wpdb->prefix . Config::TABLE_NAME_STATUS_IP, $status);
-
-        if ($result != null)
-            return true;
-        else return false;
     }
 
      /**
@@ -655,64 +514,38 @@ class Core {
      * @return void
      */
     function access_failed($ip){
+        $ip = Security::normalize_ip($ip);
 
-            // is previously bloqued ends
-            if(Security::is_ip_blocked($ip))
-                return;
+        if ($ip === null) {
+            return;
+        }
 
-            // spotlight to checks if the are queries of the option in process
-            $lock_time = 30; // Maximun time of bloqued in seconds
-            $retry_delay = 1; // Seconds to retry the query
+        if (Security::is_ip_blocked($ip)) {
+            return;
+        }
 
-            // wait until the transient expires or is deleted
-            while (get_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS) == 'true'){
-                sleep($retry_delay);
-            }
-            // set the spotlight to  disabling the access to the option
-            set_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS,'true',$lock_time);
-
-            $status = $this->get_ip_status($ip);
-            $options = get_option(Config::OPTION_SETTINGS);
-                        
-            // update the user to the current user
-            $status['userLogin'] = 'Api access';
-    
-            // increment the attempts
-            $status['attempts'] = intval($status['attempts']) + 1;
-            // gets the current time, seconds from 1/1/1070
-            $now = time();                
-            // update the lastAttempt 
-            $status['lastAttempt'] = $now;
-
-            //Checks the attempts values and proceed as expected
-            // are in break points
-            if(intval($status['attempts']) % intval($options['attempts']) == 0){
-
-                $until = $now + (intval($status['currentPeriod']) * 60);
-                $this->lock_ip($ip, $until); // adds the ip to the OPTION_BLOCKED_IPS
-                
-                $status['lockUntil'] = $until;
-                $status['currentPeriod'] = intval($options['multiplier']) * intval($status['currentPeriod']);
-                $status['status'] = 'blocked';
-            }           
-
-            $this->set_ip_status($status);
-                
-            // delete the spotlight to enabling the access to the option
-            delete_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS);
+        $options = OptionManager::get(Config::OPTION_SETTINGS, Config::DEFAULT_SETTINGS);
+        LoginAttemptsRepository::record_failed_attempt($ip, 'Api access', $options);
+        Security::clear_request_cache($ip);
     }
 
     /**
-     * This method resets the count of failed access attempts for an IP.
+     * Resets the network-wide count of failed access attempts for an IP.
+     *
+     * In Multisite, a successful authentication on any site clears the single
+     * global record, resetting attempts for every site in the network.
      * 
      * @param string $ip The IP address to reset the count for. 
      * @return void
      */
     function access_success($ip){
-            global $wpdb;
+        $ip = Security::normalize_ip($ip);
 
-            // Reset ipStatus
-            $wpdb->delete($wpdb->prefix . Config::TABLE_NAME_STATUS_IP,array('ip' => $ip));
+        if ($ip === null) {
+            return;
+        }
 
+        LoginAttemptsRepository::delete_by_ip($ip);
+        Security::clear_request_cache($ip);
     }
 }

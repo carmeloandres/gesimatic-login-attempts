@@ -7,6 +7,4 @@ Aplica todas las reglas definidas en el AGENTS.md del repositorio principal.
 Además:
 
 - Este plugin implementa protección contra fuerza bruta.
-- Toda la lógica REST utiliza `AbstractApiController`.
-- Toda respuesta utiliza `CommonResponse`.
-- La configuración se obtiene mediante `Setup`.
+- En multisite la protección de acceso al login se hace a nivel de red, un único registro para proteger el acceso a cualquier sitio.

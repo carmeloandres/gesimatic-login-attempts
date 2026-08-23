@@ -32,6 +32,7 @@ export const getStatusIps = async (restUrl, nonce, query = {page : 1, orderAttem
 
     // recive the resquest from api and obtain the json data
     if (resp.ok){
-        return await resp.json();
-    } else return {}
+        const data = await resp.json();
+        return Array.isArray(data.statusIps) ? data.statusIps : [];
+    } else return []
 }

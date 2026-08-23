@@ -6,6 +6,7 @@ use Gesimatic\Api\ActionInterface;
 use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
 
+use GesimaticLoginAttempts\Repositories\LoginAttemptsRepository;
 use GesimaticLoginAttempts\Core\Setup;
 use GesimaticLoginAttempts\Security\Security;
 
@@ -17,6 +18,11 @@ use GesimaticLoginAttempts\Security\Security;
  * @package gesimatic-login-attempts
  */
 class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
+
+    /**
+     * Administrative action identifier.
+     */
+    public const ACTION = 'do-login-attempts-status-ips';
 
     /**
      * valid action values.
@@ -38,7 +44,7 @@ class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
         $sanitized_params = array();
 
         // check if acction is as expected
-        if(isset($params['action']) && ($params['action'] === 'do-login-attempts-status-ips-action')){
+        if(isset($params['action']) && ($params['action'] === self::ACTION)){
                 // validate doAction
                 if(isset($params['doAction']) ){
                     $sanitized_params['doAction'] = sanitize_text_field($params['doAction']);
@@ -75,22 +81,22 @@ class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
         if (is_array($validated)){
             foreach($validated['ids'] as $id){
                 if ($validated['doAction'] == 'reset'){
-                    $wpdb->delete($wpdb->prefix . Config::TABLE_NAME_STATUS_IP,array('id' => $id));
+                    $wpdb->delete(LoginAttemptsRepository::table_name(),array('id' => $id));
                 } else {
-                    $status = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . $wpdb->prefix . Config::TABLE_NAME_STATUS_IP . " WHERE id = %d", (int) $id ), ARRAY_A );
+                    $status = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . LoginAttemptsRepository::table_name() . " WHERE id = %d", (int) $id ), ARRAY_A );
 
                     if ( is_array( $status ) ) {
                         $status['lockUntil'] = 0;
                         $status['status'] = 'enabled';
-                        $wpdb->update($wpdb->prefix . Config::TABLE_NAME_STATUS_IP,$status,array('id' => $id));
+                        $wpdb->update(LoginAttemptsRepository::table_name(),$status,array('id' => $id));
                     }
                 }
             }
-            Security::reload_blocked_ips();
+            Security::clear_request_cache();
 
-        } else return CommonResponse::error();
+        } else return ['success' => false];
 
-        return new \WP_REST_Response(true, 200);
+        return ['success' => true];
     }
 
 

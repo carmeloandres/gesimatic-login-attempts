@@ -120,7 +120,7 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
         let string = '';
         if (event.target.innerHTML == actionString.unlock){
             string = sprintf( gt('are_you_sure_to_apply_the_action','Are you sure to apply the %s action.'), actionString.unlock);
-            action = 'unLock';
+            action = 'unlock';
         } else {
             string = sprintf( gt('are_you_sure_to_apply_the_action','Are you sure to apply the %s action.'), actionString.reset);
             action = 'reset';
@@ -165,7 +165,7 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
                 doAction = 'reset';
                 break;
             case '1' :
-                doAction = 'unLock';
+                doAction = 'unlock';
                 break;
         }
 

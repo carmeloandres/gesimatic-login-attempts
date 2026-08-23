@@ -12,12 +12,23 @@ use GesimaticLoginAttempts\Translations\Translations;
 */
 class Admin {
 
-   public function init(): void {
+    /**
+     * Hook suffix of the registered administration page.
+     *
+     * @var string|false
+     */
+    private $page_hook = false;
 
-       // To register the gesimatic-smtp admin page
-        add_action('admin_menu',[$this,'register_admin_page']);
-        // to load the smtp admin assets
-        add_action('admin_enqueue_scripts',[$this,'admin_enqueue_assets'], 10, 1);
+    public function init(): void
+    {
+
+        if (is_multisite()) {
+            add_action('network_admin_menu', [$this, 'register_admin_page']);
+            add_action('network_admin_enqueue_scripts', [$this, 'admin_enqueue_assets'], 10, 1);
+        } else {
+            add_action('admin_menu', [$this, 'register_admin_page']);
+            add_action('admin_enqueue_scripts', [$this, 'admin_enqueue_assets'], 10, 1);
+        }
         // Gesimatic menu highlighting using CSS/JS
         add_action( 'admin_head', [ $this, 'force_menu_highlight' ] );
         // adding the smtp to gesimatic admin page
@@ -31,15 +42,17 @@ class Admin {
     /**
      * Register the gesimatic-login-atttempts module page.
      */
-    public function register_admin_page(): void {
+    public function register_admin_page(): void
+    {
             
-        add_submenu_page(
+        $this->page_hook = add_submenu_page(
             'non_existent_parent',
-            'Gesimatic Login Attempts',
-            'Gesimatic Login Attempts', 
-            'manage_options',
+            __('Gesimatic Login Attempts', 'gesimatic-login-attempts'),
+            __('Gesimatic Login Attempts', 'gesimatic-login-attempts'),
+            $this->get_required_capability(),
             'gesimatic-login-attempts',
-            [$this,'show_admin_page']);
+            [$this, 'show_admin_page']
+        );
     }
 
     /**
@@ -47,10 +60,14 @@ class Admin {
      *
      * @param string $hook The name of the current page in the admin.
      */
-    public function admin_enqueue_assets( $hook ) {
+    public function admin_enqueue_assets($hook): void
+    {
 
-        // Only load if the hook matches the slug from gesimatic-login-attempts.
-        if ( 'admin_page_gesimatic-login-attempts' !== $hook ) {
+        if ($this->page_hook === false || $this->page_hook !== $hook) {
+            return;
+        }
+
+        if (!$this->current_user_can_manage()) {
             return;
         }
         
@@ -69,10 +86,6 @@ class Admin {
             true                                             
         );
 
-        if (function_exists( 'is_multisite' ) && is_multisite() && is_super_admin())
-            $isSuperAdmin = true;
-        else $isSuperAdmin = false;            
-
         // Get the roles through the wp_roles object
         global $wp_roles;
 
@@ -89,7 +102,7 @@ class Admin {
                 "restUrl" => rest_url( Config::ROUTE_NAMESPACE_GESIMATIC_ADMIN ),
                 "nonce" => wp_create_nonce( 'wp_rest' ),
                 "availableRoles" => $roles,
-                "isSuperAdmin" => $isSuperAdmin,
+                "isMultisite" => is_multisite(),
                 "translations" => Translations::admin_translations()
             )
         );
@@ -98,11 +111,12 @@ class Admin {
     /**
      * Show admin page.
      */
-    public function show_admin_page(): void {
+    public function show_admin_page(): void
+    {
         // Get the roles through the wp_roles object
         global $wp_roles;
 
-        if ( ! current_user_can( 'manage_options' ) ) {
+        if (!$this->current_user_can_manage()) {
             wp_die( esc_html__( 'You do not have sufficient permissions to access this page.','gesimatic-login-attempts' ) );
         }
 
@@ -113,6 +127,28 @@ class Admin {
                 <div id="gesimatic-login-attempts-admin"><?php esc_html_e( 'There has been an error, the component did not render.', 'gesimatic-login-attempts' ); ?></div>
             </div>
         <?php
+    }
+
+    /**
+     * Returns the capability required for the current installation.
+     */
+    private function get_required_capability(): string
+    {
+        return is_multisite() ? 'manage_network_options' : 'manage_options';
+    }
+
+    /**
+     * Checks whether the current user can manage this module.
+     */
+    private function current_user_can_manage(): bool
+    {
+        if (is_multisite()) {
+            return is_network_admin()
+                && is_super_admin()
+                && current_user_can('manage_network_options');
+        }
+
+        return current_user_can('manage_options');
     }
 
     /**

@@ -5,6 +5,7 @@ namespace GesimaticLoginAttempts\Api;
 use Gesimatic\Api\ActionInterface;
 use Gesimatic\Api\Controllers\AdminController;
 use Gesimatic\Api\Base\CommonResponse;
+use Gesimatic\Core\OptionManager;
 
 use GesimaticLoginAttempts\Core\Config;
 
@@ -36,11 +37,6 @@ class SetLoginAttemptsSettings implements ActionInterface{
             if ( json_last_error() !== JSON_ERROR_NONE) return false;
 
             $settings = (array) $settings; // convert object $settings to array
-            // if is multisite and user is super_admin try to get the updateNetwork field 
-            if (function_exists( 'is_multisite' ) && is_multisite() && is_super_admin()){
-                if (isset($settings['updateNetwork']) && gettype($settings['updateNetwork']) === 'boolean' && $settings['updateNetwork'] === true )
-                    $sanitized_params['updatenetwork'] = true;
-            }
 //                error_log ('SetLoginAttemptsSettings validate, $settings: '.var_export($settings,true));
 
             // validate attempts name
@@ -124,23 +120,7 @@ class SetLoginAttemptsSettings implements ActionInterface{
 
         if (is_array($settings)){
 
-            if (isset($settings['updatenetwork'])) {
-                    
-                unset($settings['updateNetwork']);
-
-                $sites = get_sites();
-                foreach ($sites as $site) {
-                    switch_to_blog($site->blog_id);
-            
-                    update_option(Config::OPTION_SETTINGS, $settings);
-                
-                    restore_current_blog();
-                }
-            } else {
-
-                update_option(Config::OPTION_SETTINGS, $settings);
-
-            }
+            OptionManager::update(Config::OPTION_SETTINGS, $settings);
 
             $data['success'] = true;
             $data['message'] = __('Settings updated successfully', 'gesimatic-login-attempts');

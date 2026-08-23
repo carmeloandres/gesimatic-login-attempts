@@ -8,6 +8,7 @@ use Gesimatic\Api\Base\CommonResponse;
 
 use GesimaticLoginAttempts\Core\Setup;
 use GesimaticLoginAttempts\Core\Config;
+use GesimaticLoginAttempts\Repositories\LoginAttemptsRepository;
 
 /**
  * Class Setup
@@ -53,7 +54,8 @@ class GetLoginAttemptsPagination extends Setup implements ActionInterface{
         global $wpdb;
 
         $results = array(
-			'items' => 0,
+                'success' => true,
+                'items' => 0,
 			'pages' => 0
 		);
 
@@ -67,7 +69,7 @@ class GetLoginAttemptsPagination extends Setup implements ActionInterface{
 					$filterStatus = " WHERE status = 'enabled' ";
 				else $filterStatus = " WHERE status <> 'enabled' ";
         
-    $items = $wpdb->get_var( "SELECT COUNT(*) FROM " . $wpdb->prefix . Config::TABLE_NAME_STATUS_IP . " " . $filterStatus );
+    $items = $wpdb->get_var( "SELECT COUNT(*) FROM " . LoginAttemptsRepository::table_name() . " " . $filterStatus );
 
 	        $pages = 0;
 			if (($items != NULL)){
@@ -78,14 +80,15 @@ class GetLoginAttemptsPagination extends Setup implements ActionInterface{
 			}
 
 			$results = array(
-				'items' => $items,
+                'success' => true,
+                'items' => $items,
 				'pages' => $pages
 			);		
 
 
-        } else return CommonResponse::error();
+        } else return ['success' => false];
 
-        return new \WP_REST_Response($results, 200);
+        return $results;
     }
 
 

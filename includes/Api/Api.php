@@ -35,7 +35,7 @@ class Api {
 
         $new_actions['get-login-attempts-pagination'] = GetLoginAttemptsPagination::class;
 
-        $new_actions['do-login-attempts-status-ips'] = DoLoginAttemptsStatusIpsAction::class;
+        $new_actions[DoLoginAttemptsStatusIpsAction::ACTION] = DoLoginAttemptsStatusIpsAction::class;
 
 //        error_log ('Gesimatic-login-attempts Core register_gesimatic_login_attempts_api_actions(), $new_actions: '.var_export($new_actions,true));
 

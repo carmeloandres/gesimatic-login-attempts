@@ -20,22 +20,6 @@ class Config {
     public const TABLE_NAME_STATUS_IP = 'gesimatic_login_attempts_status_ip';
 
     /**
-     * Option key in the database to store blocked IP data.
-     *
-     * @var string
-     * @since 1
-     */
-    public const OPTION_BLOCKED_IPS = 'gesimatic_login_attempts_blocked_ips';
-
-    /**
-     * Transient key used to synchronize access to blocked IP data.
-     *
-     * @var string
-     * @since 1
-     */
-    public const SPOTLIGHT_QUERING_BLOCKED_IPS = 'gesimatic_login_attempts_quering_blocked_ips_spotlight';
-
-    /**
      * Valid status filters used by the API requests.
      *
      * @var array
@@ -44,7 +28,7 @@ class Config {
     public const VALID_FILTERS = ['', 'enabled', 'disabled'];
 
      /**
-     * Option key in the database to store the blocked IPs data.
+     * Option key used to store the limiter settings.
      * @var string
      * @since 1
      */

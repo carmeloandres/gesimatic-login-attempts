@@ -9,6 +9,7 @@ use Gesimatic\Api\Base\CommonResponse;
 use GesimaticLoginAttempts\Core\Setup;
 use GesimaticLoginAttempts\Security\Security;
 use GesimaticLoginAttempts\Core\Config;
+use GesimaticLoginAttempts\Repositories\LoginAttemptsRepository;
 
 /**
  * Class Setup
@@ -108,7 +109,6 @@ class GetLoginAttemptsStatusIps extends Setup implements ActionInterface{
 
             $result = array();
 
-//            Security::reload_blocked_ips();
 
             $page = intval($params['page']);
 
@@ -137,7 +137,7 @@ class GetLoginAttemptsStatusIps extends Setup implements ActionInterface{
 	        $offset = ($page - 1) * intval(self::$per_page);
 
             // get status ips
-            $sql = "SELECT * FROM " . $wpdb->prefix . Config::TABLE_NAME_STATUS_IP . " " . $filterQuery . $orderQuery . " LIMIT %d OFFSET %d";
+            $sql = "SELECT * FROM " . LoginAttemptsRepository::table_name() . " " . $filterQuery . $orderQuery . " LIMIT %d OFFSET %d";
             $query = $wpdb->prepare($sql, self::$per_page, $offset);
             error_log ('GetLoginAttemptsStatusIps handle, $sql: '.var_export($sql,true));
             error_log ('GetLoginAttemptsStatusIps handle, $query: '.var_export($query,true));
@@ -166,9 +166,12 @@ class GetLoginAttemptsStatusIps extends Setup implements ActionInterface{
 
             error_log ('GetLoginAttemptsStatusIps handle, $new_results: '.var_export($new_results,true));
 
-             return new \WP_REST_Response($results, 200);
+             return [
+                 'success' => true,
+                 'statusIps' => $results,
+             ];
 
-        } else return CommonResponse::error();
+        } else return ['success' => false];
 
     }
 

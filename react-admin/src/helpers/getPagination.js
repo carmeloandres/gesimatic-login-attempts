@@ -34,6 +34,7 @@ export const getPagination = async (restUrl, nonce, query ) => {
 
     // recive the resquest from api and obtain the json data
     if (resp.ok){
-        return await resp.json();
+        const data = await resp.json();
+        return data.success ? data : {items: 0, pages: 0};
     } else return {items: 0, pages: 0}
 }
