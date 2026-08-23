@@ -76,6 +76,7 @@ class Security extends Setup{
         // delete the spotlight to enabling the access to the option
         delete_transient(Config::SPOTLIGHT_QUERING_BLOCKED_IPS);
 
+//        error_log ('GesimaticLoginAttempts Security->is_ip_blocked(), $blockedIp: '.var_export($blockedIp,true).' $ip: '.var_export($ip,true));
 
         return $blockedIp;
 
