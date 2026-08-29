@@ -24,11 +24,11 @@ class Admin {
 
         if (is_multisite()) {
             add_action('network_admin_menu', [$this, 'register_admin_page']);
-            add_action('network_admin_enqueue_scripts', [$this, 'admin_enqueue_assets'], 10, 1);
         } else {
             add_action('admin_menu', [$this, 'register_admin_page']);
-            add_action('admin_enqueue_scripts', [$this, 'admin_enqueue_assets'], 10, 1);
-        }
+            }
+        // Enqueue assets for the admin page
+        add_action('admin_enqueue_scripts', [$this, 'admin_enqueue_assets'], 10, 1);
         // Gesimatic menu highlighting using CSS/JS
         add_action( 'admin_head', [ $this, 'force_menu_highlight' ] );
         // adding the smtp to gesimatic admin page
