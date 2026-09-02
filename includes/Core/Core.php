@@ -124,21 +124,15 @@ class Core {
 
         $this->register_modules();
 
+        // Register API integrations before REST routes are initialized.
+        $this->get_module('api')->init();
+
         // Admin solo en backend
         if (is_admin()) {
             $this->get_module('admin')->init();
         }
 
-        // API solo cuando se usa REST
-        add_action('rest_api_init', function () {
-            $this->get_module('api')->init();
-        });
-
-
-
         // Modules and hooks loaded always, to load the translations
-
-//        $this->register_updates();
 
         // Load the plugin text domain for translations
         load_plugin_textdomain(
