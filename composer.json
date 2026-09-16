@@ -16,5 +16,8 @@
         "psr-4": {
             "GesimaticLoginAttempts\\": "includes/"
         }
-    }
+    },
+    "require": {
+         "php": ">=8.0"
+     }
 }

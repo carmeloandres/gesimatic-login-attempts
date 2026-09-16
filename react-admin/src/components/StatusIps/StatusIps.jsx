@@ -8,13 +8,13 @@
     Task: This component manage the status ip table/information   
 
 */
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { gt, doStatusIpsAction, getPagination, getStatusIps, getStringDate } from '../../helpers'
 import { WpBulkActions } from '../WpBulkActions/WpBulkActions'
 import { WpFilterActions } from '../WpFilterActions/WpFilterActions'
 import { WpTableNAvigation } from '../WpTableNavigation/WpTableNavigation'
 import { sprintf } from '@wordpress/i18n'; // execute 'npm install @wordpress/i18n' to install library
-import { icons } from '../icons'
+import { CaretDownFill, CaretUpFill } from '../icons'
 import './StatusIps.css'
 
 export const StatusIps = ({restUrl, nonce, isShown }) => {
@@ -37,11 +37,6 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
     const bulkActions = [gt('reset','Reset'),gt('unlock','Unlock')];
     const filterActions = [ [ gt('all_states','All states'), gt('enabled','enabled'),gt('blocked','blocked')] ]
 
-
-    useEffect( () => {
-        if (isShown)
-            updateStatus()
-    },[,query, isShown])
 
     const onClickIcon = (name) => {
         switch(name){
@@ -84,13 +79,12 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
 
 
 
-    const updateStatus = async() => {
+    const updateStatus = useCallback(async () => {
 
         setAlert({class:'gsmtc-notice gsmtc-notice-warning',content:gt('getting_the_information','Getting the information.. Please wait')});
 
         const status = await getStatusIps(restUrl,nonce, query);
 
-        console.log ('status : ',status);
 
         let newStatus = []
         status.forEach(element => {
@@ -98,8 +92,6 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
             newStatus = [...newStatus,newElement]            
         });
         const newPagination = await getPagination(restUrl,nonce, query);
-
-        console.log ('newPagination : ',newPagination);
 
         setStatusIps(newStatus);
         setDataPagination(newPagination);
@@ -109,22 +101,23 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
             setAlert({class:'gsmtc-notice-fade-out',content:gt('the_information_has_been_obtained','The information has been obtained correctly')});
             setTimeout(() => {setAlert({class:'gsmtc-display-none',content:''})},1000);
         },4000);
+    }, [restUrl, nonce, query])
 
+    useEffect(() => {
+        if (!isShown) return undefined
 
-    }
+        const timeoutId = window.setTimeout(updateStatus, 0)
+        return () => window.clearTimeout(timeoutId)
+    }, [isShown, updateStatus])
 
     const onClickAction = async (event) => {
 
-        let ids = event.target.id.split('-');
-        let action = '';
-        let string = '';
-        if (event.target.innerHTML == actionString.unlock){
-            string = sprintf( gt('are_you_sure_to_apply_the_action','Are you sure to apply the %s action.'), actionString.unlock);
-            action = 'unlock';
-        } else {
-            string = sprintf( gt('are_you_sure_to_apply_the_action','Are you sure to apply the %s action.'), actionString.reset);
-            action = 'reset';
-        } 
+        const ids = event.currentTarget.id.split('-');
+        const action = event.currentTarget.textContent == actionString.unlock ? 'unlock' : 'reset';
+        const string = sprintf(
+            gt('are_you_sure_to_apply_the_action', 'Are you sure to apply the %s action.'),
+            actionString[action]
+        );
 
         let result = window.confirm(string)
         if(result == true){
@@ -151,7 +144,6 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
 
         setAlert({class:'gsmtc-notice gsmtcnotice-info fade-in',content:gt('performing_the_action','Performing the action.. Please wait')});
 
-        console.log('onApplyAction, statusIps: ', statusIps);
 
         let ids = [];
         statusIps.forEach((status) => {
@@ -237,31 +229,26 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
                                 <td id="index"><input id={'0'} type="checkbox" name="checkbox-0" onChange={onChangeCheckbox} checked = {allBulk}/></td>
                                 <th scope="col" className='manage-column column-title'>{gt('user_login','User login')}</th>
                                 <th scope="col" className='manage-column column-title'>Ip</th>
-                                <th scope="col" className='manage-column column-title'><div style={{display:'flex'}}><span >{gt('attempts','Attempts')}</span><span className='sort'><icons.caret_up_fill className={(query.orderAttempts == 'asc')? 'sort-asc selected' : 'sort-asc'} name='upAttempts' onClick={onClickIcon}/><icons.caret_down_fill className={(query.orderAttempts == 'desc')? 'sort-desc selected' : 'sort-desc'} name='downAttempts' onClick={onClickIcon}/></span></div></th>
-                                <th scope="col" className='manage-column column-title'><div style={{display:'flex'}}><span>{gt('last_attempts','Last attempt')}</span><span className='sort'><icons.caret_up_fill className={(query.orderLastAttempt == 'asc')? 'sort-asc selected' : 'sort-asc'} name='upLastAttempt' onClick={onClickIcon}/><icons.caret_down_fill className={(query.orderLastAttempt == 'desc')? 'sort-desc selected' : 'sort-desc'} name='downLastAttempt'onClick={onClickIcon}/></span></div></th>
-                                <th scope="col" className='manage-column column-title'><div style={{display:'flex'}}><span>{gt('next_lock_period','Next lock period')}</span><span className='sort'><icons.caret_up_fill className={(query.orderLockPeriod == 'asc')? 'sort-asc selected' : 'sort-asc'} name='upNextLock' onClick={onClickIcon}/><icons.caret_down_fill className={(query.orderLockPeriod == 'desc')? 'sort-desc selected' : 'sort-desc'} name='downNextLock'onClick={onClickIcon}/></span></div></th>
+                                <th scope="col" className='manage-column column-title'><div style={{display:'flex'}}><span >{gt('attempts','Attempts')}</span><span className='sort'><CaretUpFill className={(query.orderAttempts == 'asc')? 'sort-asc selected' : 'sort-asc'} name='upAttempts' onClick={onClickIcon}/><CaretDownFill className={(query.orderAttempts == 'desc')? 'sort-desc selected' : 'sort-desc'} name='downAttempts' onClick={onClickIcon}/></span></div></th>
+                                <th scope="col" className='manage-column column-title'><div style={{display:'flex'}}><span>{gt('last_attempts','Last attempt')}</span><span className='sort'><CaretUpFill className={(query.orderLastAttempt == 'asc')? 'sort-asc selected' : 'sort-asc'} name='upLastAttempt' onClick={onClickIcon}/><CaretDownFill className={(query.orderLastAttempt == 'desc')? 'sort-desc selected' : 'sort-desc'} name='downLastAttempt'onClick={onClickIcon}/></span></div></th>
+                                <th scope="col" className='manage-column column-title'><div style={{display:'flex'}}><span>{gt('next_lock_period','Next lock period')}</span><span className='sort'><CaretUpFill className={(query.orderLockPeriod == 'asc')? 'sort-asc selected' : 'sort-asc'} name='upNextLock' onClick={onClickIcon}/><CaretDownFill className={(query.orderLockPeriod == 'desc')? 'sort-desc selected' : 'sort-desc'} name='downNextLock'onClick={onClickIcon}/></span></div></th>
                                 <th scope="col" className='manage-column column-title'>{gt('state','State')}</th>
                                 <th scope="col" className='manage-column column-title'>{gt('action','Action')}</th>
                                 <th scope="col" className='manage-column column-title'>{gt('blocked_until','Blocked until')}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            { (statusIps.length == 0)? <tr><td colspan="9" style={{ fontWeight: 'bold', textAlign: 'center', width: '100%'}}>{gt('there_are_no_status_ips_to_show','There are no status ips to show')}</td></tr> : ''}
+                            { (statusIps.length == 0)? <tr><td colSpan="9" style={{ fontWeight: 'bold', textAlign: 'center', width: '100%'}}>{gt('there_are_no_status_ips_to_show','There are no status ips to show')}</td></tr> : ''}
                             { (statusIps.length > 0)?                             
                             <>
-                                {statusIps.map((status, index) => {
-                                    let dateString = '';
-                                    let seconds = 0;
-                                    if (status.lockUntil > 0){
-                                        let date = new Date();
-                                        seconds = date.getSeconds() + parseInt(status.lockUntil) 
-                                        dateString = getStringDate(seconds);    
-                                    }
-                                    let date = new Date();
-                                    seconds = date.getSeconds() - parseInt(status.lastAttempt)
-                                    let lastAttempt = getStringDate(seconds);
+                                {statusIps.map((status) => {
+                                    const now = new Date().getSeconds();
+                                    const dateString = status.lockUntil > 0
+                                        ? getStringDate(now + parseInt(status.lockUntil))
+                                         : '';
+                                    const lastAttempt = getStringDate(now - parseInt(status.lastAttempt));
                                     return(
-                                        <tr>
+                                        <tr key={status.id}>
                                             <th scope="row"><input id={status.id} type="checkbox" name={"checkbox-"+status.id} onChange={onChangeCheckbox} checked={status.action}/></th>
                                             <td style={{verticalAlign: 'middle'}}>{status.userLogin}</td>
                                             <td style={{verticalAlign: 'middle'}}>{status.ip}</td>

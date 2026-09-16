@@ -9,30 +9,14 @@
 
     Task:   This component provide a table navigation similar to wp tablenav-pages component to add in tables.  
 */
-import { useEffect, useState } from 'react'
 import { gt } from '../../helpers'
 
 export const WpTableNAvigation = ({items, pages, page, onChangePage}) => {
     
 
-    const [disabledLeft, setDisabledLeft] = useState(false)
-    const [disabledRight, setDisabledRight] = useState(false)
-    const [inputDisabled,setInputDisabled] = useState(false);
-
-    useEffect(()=> {
-        if (parseInt(page) <= 1)
-            setDisabledLeft(true);
-        else setDisabledLeft(false);
-
-        if (parseInt(page) == parseInt(pages))
-            setDisabledRight(true);
-        else setDisabledRight(false);
-
-        if (parseInt(pages) <= 1)
-            setInputDisabled(true);
-        else setInputDisabled(false);
-
-    },[,page,pages])
+    const disabledLeft = parseInt(page) <= 1
+    const disabledRight = parseInt(page) >= parseInt(pages)
+    const inputDisabled = parseInt(pages) <= 1
 
 
     const onChange = ({target}) => {

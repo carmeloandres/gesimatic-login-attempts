@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { getLoginAttemptsSettings, gt, onInputNumber, setLoginAttemptsSettings} from './helpers';
-import { GesimaticAccordion, LogedInAlerts, StatusIps, ToggleSwitch } from './components';
+import { GesimaticAccordion, LogedInAlerts, StatusIps } from './components';
 import { sprintf } from '@wordpress/i18n'; // execute 'npm install @wordpress/i18n' to install library
 import './GesimaticLoginAttemptsApp.css'
 
 export const GesimaticLoginAttemptsApp = () => {
 
   // It gets the credentials for access to the API
-  const { restUrl, nonce, availableRoles, isMultisite } = gesimaticLoginAttemptsAdmin;
+  const { restUrl, nonce, availableRoles, isMultisite } = window.gesimaticLoginAttemptsAdmin;
 
   // state to manage the login attempts settings
     const [settings, setSettings] = useState({
@@ -28,11 +28,14 @@ export const GesimaticLoginAttemptsApp = () => {
   const [alert,setAlert] = useState({class:'gsmtc-display-none' ,content:''});
 
 
-  useEffect(async () => {
-        let data = await getLoginAttemptsSettings(restUrl, nonce);
-        setSettings(data);
-    
-  },[])
+  useEffect(() => {
+        let active = true;
+        getLoginAttemptsSettings(restUrl, nonce).then((data) => {
+            if (active) setSettings(data);
+        });
+
+        return () => { active = false; };
+  },[restUrl, nonce])
 
 
 
@@ -42,8 +45,6 @@ export const GesimaticLoginAttemptsApp = () => {
         setAlert({class:'gsmtc-notice gsmtc-notice-info',content:gt('updating_information','Updating information.. Please wait')});
 
         const result = await setLoginAttemptsSettings(restUrl, nonce, settings)
-
-        // console.log ('onSubmit :', result);
 
 
         if ( result.success ){

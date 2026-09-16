@@ -8,7 +8,7 @@
 
     Task:   This component provide one or more list to filter the parent content in a WpTable context..  
 */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { gt } from '../../helpers'
 
 export const WpFilterActions = ({filters, onChangeOption, onFilter }) => {
@@ -16,12 +16,6 @@ export const WpFilterActions = ({filters, onChangeOption, onFilter }) => {
     const [selectedFilter, setSelectedFilter] = useState('-1')
     const [selectedOption, setSelectedOption] = useState('-1')
     const [buttonDiabled, setButtonDisabled] = useState(true)
-
-    useEffect(() => {
-        if(selectedOption == "-1")
-            setButtonDisabled(true)
-        else setButtonDisabled(false)
-    },[selectedOption])
 
     const onChangeSelect = (event) => {
         let filter = event.target.name;

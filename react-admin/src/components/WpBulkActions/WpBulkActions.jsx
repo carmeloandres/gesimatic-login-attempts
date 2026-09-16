@@ -7,7 +7,7 @@
 
     Task:   This component provide a list of bulk ations similar to wordpress to select and apply an actión in a WpTable context.  
 */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { gt } from '../../helpers'
 import { sprintf } from '@wordpress/i18n'; // execute 'npm install @wordpress/i18n' to install library
 
@@ -15,13 +15,7 @@ export const WpBulkActions = ({ actions, onApply }) => {
     
 
     const [selectedOption, setSelectedOption] = useState("-1")
-    const [buttonDiabled, setButtonDisabled] = useState(true)
-
-    useEffect(() => {
-        if(selectedOption == "-1")
-            setButtonDisabled(true)
-        else setButtonDisabled(false)
-    },[selectedOption])
+    const buttonDisabled = selectedOption == "-1"
 
     const onChangeSelect = (event) => {
         setSelectedOption(event.target.value)
@@ -44,11 +38,11 @@ export const WpBulkActions = ({ actions, onApply }) => {
                     <select onChange={onChangeSelect} style={{marginRight:'3px'}}>
                         <option value ="-1">{gt('bulk_actions','Bulk actions')}</option>
                         {actions.map((action,index) => {
-                                return( <option value={index}>{action}</option>)
+                                return( <option key={action} value={index}>{action}</option>)
                             }
                         )}
                     </select>
-                    <input type="button" className='button action' value={gt('apply','Apply')} onClick={onClickButton} disabled={buttonDiabled}/>
+                    <input type="button" className='button action' value={gt('apply','Apply')} onClick={onClickButton} disabled={buttonDisabled}/>
                </div>            
             </>
     )

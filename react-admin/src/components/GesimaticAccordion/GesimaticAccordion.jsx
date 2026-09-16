@@ -10,29 +10,18 @@
 
     To use the icons , this script must be loaded : <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 */
-import { useEffect, useState } from 'react'
-import { icons } from '../icons'
+import { ArrowDownCircle, ArrowUpCircle } from '../icons'
 import './GesimaticAccordion.css'
 
 export const GesimaticAccordion = ({showHide, title= '', openLabel = '', closedLabel = '', onChange, children}) => {
     
-    const [label, setLabel] = useState('')
-    const [buttonClass, setButtonClass] = useState('')
-
-    useEffect(() => {
-        if (showHide){
-            setLabel(openLabel)
-            setButtonClass('gsmtc-accordion-button open')
-        } else {
-            setLabel(closedLabel)
-            setButtonClass('gsmtc-accordion-button')
-        }
-    },[showHide])
+    const label = showHide ? openLabel : closedLabel
+    const buttonClass = showHide ? 'gsmtc-accordion-button open' : 'gsmtc-accordion-button'
 
    return(
             <>
                 <div className='gsmtc-accordion'>
-                    <div className={buttonClass} onClick={() => onChange( ! showHide)}><h2 className='gsmtc-accordion-button-label'>{title}</h2><div className='gsmtc-accordion-action-button' onClick={() => onChange( ! showHide)}><span style={{verticalAlign: 'middle'}}>{label}</span>{showHide &&  <icons.arrow_up_circle className={'bi'} name='upAccordion' onClick={() => onChange( ! showHide)}/>}{ ! showHide &&  <icons.arrow_down_circle className={'bi'} name='downAccordion' onClick={() => onChange( ! showHide)}/>} </div></div>
+                    <div className={buttonClass} onClick={() => onChange( ! showHide)}><h2 className='gsmtc-accordion-button-label'>{title}</h2><div className='gsmtc-accordion-action-button'><span style={{verticalAlign: 'middle'}}>{label}</span>{showHide &&  <ArrowUpCircle className={'bi'} name='upAccordion' onClick={() => onChange( ! showHide)}/>}{ ! showHide &&  <ArrowDownCircle className={'bi'} name='downAccordion' onClick={() => onChange( ! showHide)}/>} </div></div>
                         <div className='gsmtc-accordion-content' style={{display: (showHide)? 'block' : 'none'}}>
                             {children}
                         </div>                

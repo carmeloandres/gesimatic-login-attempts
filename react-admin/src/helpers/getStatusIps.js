@@ -16,8 +16,6 @@ export const getStatusIps = async (restUrl, nonce, query = {page : 1, orderAttem
         'X-WP-Nonce': nonce 
     })    
 
-    const { page, orderAttempts, orderLockPeriod, orderLastAttempt, filterStatus } = query
-
     // create the FormData to store the Data of query
     let apiData = new FormData();
 //    apiData.append('action','get-login-attempts-status-ips');

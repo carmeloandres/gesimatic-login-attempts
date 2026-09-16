@@ -1,5 +1,3 @@
-import React from "react";
-
 // Componente para el icono arrow-down-circle
 export const ArrowDownCircle = ({className, name, onClick}) => {
 
@@ -10,7 +8,7 @@ export const ArrowDownCircle = ({className, name, onClick}) => {
   return (
     <div className={className} onClick={onPush}>
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
+        <path fillRule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293z"/>
       </svg>    
     </div>
   )
@@ -26,7 +24,7 @@ export const ArrowUpCircle = ({className, name, onClick}) => {
   return (
     <div className={className} onClick={onPush}>
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707z"/>
+        <path fillRule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-7.5 3.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707z"/>
       </svg>    </div>
   )
 };
@@ -62,12 +60,4 @@ export const CaretUpFill = ({className, name, onClick}) => {
             </svg>
           </span>
     )
-  };
-  
-  // Exportar todos los iconos en un objeto
-  export const icons = {
-    arrow_down_circle : ArrowDownCircle,
-    arrow_up_circle : ArrowUpCircle,
-    caret_up_fill: CaretUpFill,
-    caret_down_fill: CaretDownFill,
   };

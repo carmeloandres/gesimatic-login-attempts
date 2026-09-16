@@ -12,7 +12,6 @@
     Task:   This component enables and diables the logedInAlert and set the roles to triggers the alarms  
 
 */
-import { useContext, useEffect, useState } from 'react'
 import { ToggleSwitch } from '../ToggleSwitch/ToggleSwitch';
 import { gt } from '../../helpers'
 
@@ -47,7 +46,7 @@ export const LogedInAlerts = ({logedInAlert, triggerRoles,  availableRoles, onCh
                     { logedInAlert &&
                         Object.entries(availableRoles).map(([key, value]) => {
                             return(
-                                <tr>
+                                <tr key={key}>
                                 <th scope="row"><label style={{textAlign: "right", display:"block"}}>{value+' '+'role'}</label></th>
                                 <td>
                                     <ToggleSwitch

@@ -56,10 +56,9 @@ class Translations {
              'after_failed_access_attempts' =>  __('After %1$d failed access attempts from the same IP, access will be blocked for an initial period of %2$d minutes. If after this period another %1$d failed access attempts occur, the previous blocking period will be multiplied by %3$d and access will remain blocked during that period. This process continues until a successful login is achieved, at which point the failed access attempts for the IP are reset.','gesimatic-login-attempts'),
              'update_ettings' =>  __('Update settings','gesimatic-login-attempts'),
              'status_ips' =>  __('Status ips','gesimatic-login-attempts'),
-             'network_status_scope' =>  __('Intentos y bloqueos de toda la red.','gesimatic-login-attempts'),
-             'shared_ip_network_warning' =>  __('Advertencia: los intentos y bloqueos se comparten en toda la red. Los usuarios que compartan una IP pública (oficinas, universidades, VPN o CGNAT) pueden quedar bloqueados en todos los sitios por la actividad de una sola persona.','gesimatic-login-attempts'),
              'hide_status_ips' =>  __('Hide status ips','gesimatic-login-attempts'),
              'show_status_ips' =>  __('Show status ips','gesimatic-login-attempts'),
+             'network_status_scope' =>  __('Intentos y bloqueos de toda la red.','gesimatic-login-attempts'),
              'this_plugin_temporarily_stores_the_IP' =>  __('This plugin temporarily stores the IP addresses of failed login attempts to prevent brute-force attacks. IPs are automatically deleted after a successful login. We recommend including this information in your Privacy Policy.','gesimatic-login-attempts'),
             );
 
