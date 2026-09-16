@@ -1,0 +1,341 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Gesimatic-Login-Attempts\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-16 20:01+0000\n"
+"PO-Revision-Date: 2026-09-16 20:06+0000\n"
+"Last-Translator: \n"
+"Language-Team: French (France)\n"
+"Language: fr_FR\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.8.8; wp-7.1; php-8.3.6\n"
+"X-Domain: gesimatic-login-attempts"
+
+#: includes/Translations/Translations.php:46
+msgid "Access attempts"
+msgstr "Tentatives d'accès"
+
+#: includes/Translations/Translations.php:50
+msgid "Access attempts allowed"
+msgstr "Tentatives d'accès autorisées"
+
+#: includes/Core/Core.php:201
+msgid "Access notification"
+msgstr "Notification d'accès"
+
+#: includes/Core/Core.php:199
+msgid "Access notification from"
+msgstr "Notification d'accès de"
+
+#: includes/Translations/Translations.php:29
+msgid "Action"
+msgstr "Action"
+
+#: includes/Translations/Translations.php:60
+msgid ""
+"Advertencia: los intentos y bloqueos se comparten en toda la red. Los "
+"usuarios que compartan una IP pública (oficinas, universidades, VPN o CGNAT) "
+"pueden quedar bloqueados en todos los sitios por la actividad de una sola "
+"persona."
+msgstr ""
+"Avertissement : les tentatives et blocages sont partagés sur l'ensemble du "
+"réseau. Les utilisateurs partageant une IP publique (bureaux, universités, "
+"VPN ou CGNAT) peuvent être bloqués sur tous les sites par l'activité d'une "
+"seule personne."
+
+#: includes/Translations/Translations.php:56
+#, php-format
+msgid ""
+"After %1$d failed access attempts from the same IP, access will be blocked "
+"for an initial period of %2$d minutes. If after this period another %1$d "
+"failed access attempts occur, the previous blocking period will be "
+"multiplied by %3$d and access will remain blocked during that period. This "
+"process continues until a successful login is achieved, at which point the "
+"failed access attempts for the IP are reset."
+msgstr ""
+"Après %1$d tentatives d'accès échouées depuis la même IP, l'accès sera "
+"bloqué pour une période initiale de %2$d minutes. Si, après cette période, "
+"%1$d autres tentatives échouées surviennent, la période de blocage "
+"précédente sera multipliée par %3$d et l'accès restera bloqué pendant cette "
+"durée. Ce processus continue jusqu'à ce qu'une connexion réussie soit "
+"effectuée, auquel cas le compteur de tentatives échouées pour cette IP est "
+"réinitialisé."
+
+#: includes/Translations/Translations.php:15
+msgid "All states"
+msgstr "Tous les états"
+
+#: includes/Translations/Translations.php:35
+msgid "Apply"
+msgstr "Appliquer"
+
+#: includes/Translations/Translations.php:20
+#, php-format
+msgid "Are you sure to apply the %s action."
+msgstr "Êtes-vous sûr de vouloir appliquer l'action %s ?"
+
+#: includes/Translations/Translations.php:25
+msgid "Attempts"
+msgstr "Tentatives"
+
+#: includes/Translations/Translations.php:51
+msgid "Attempts allowed before lockout"
+msgstr "Tentatives autorisées avant verrouillage"
+
+#: includes/Translations/Translations.php:17
+msgid "blocked"
+msgstr "bloqué"
+
+#: includes/Translations/Translations.php:30
+msgid "Blocked until"
+msgstr "Bloqué jusqu'à"
+
+#: includes/Translations/Translations.php:33
+msgid "bloqued"
+msgstr "bloqué"
+
+#: includes/Translations/Translations.php:34
+msgid "Bulk actions"
+msgstr "Actions en masse"
+
+#. Author of the plugin
+msgid "Carmelo Andrés"
+msgstr "Carmelo Andrés"
+
+#: includes/Translations/Translations.php:41
+msgid "Current page"
+msgstr "Page actuelle"
+
+#: includes/Translations/Translations.php:38
+#: includes/Translations/Translations.php:39
+msgid "Disabled"
+msgstr "Désactivé"
+
+#: includes/Translations/Translations.php:37
+msgid "Enable / Disables the sending of alert emails in the user login"
+msgstr ""
+"Active / désactive l'envoi d'e-mails d'alerte lors de la connexion des "
+"utilisateurs."
+
+#: includes/Translations/Translations.php:16
+msgid "enabled"
+msgstr "activé"
+
+#: includes/Api/SetLoginAttemptsSettings.php:131
+msgid "Failed to update settings"
+msgstr "Échec de la mise à jour des paramètres"
+
+#: includes/Translations/Translations.php:36
+msgid "Filter"
+msgstr "Filtrer"
+
+#: includes/Admin/Admin.php:50 includes/Admin/Admin.php:51
+msgid "Gesimatic Login Attempts"
+msgstr "Gesimatic Login Attempts"
+
+#. Description of the plugin
+msgid "Gesimatic module/plugin to protect login access by limiting attempts"
+msgstr ""
+"Module/plugin Gesimatic pour protéger l'accès à la connexion en limitant les "
+"tentatives."
+
+#. Name of the plugin
+msgid "Gesimatic-Login-Attempts"
+msgstr "Gesimatic-Login-Attempts"
+
+#: includes/Translations/Translations.php:18
+msgid "Getting the information.. Please wait"
+msgstr "Récupération des informations... Veuillez patienter"
+
+#: includes/Translations/Translations.php:48
+msgid "Hide settings"
+msgstr "Masquer les paramètres"
+
+#: includes/Translations/Translations.php:61
+msgid "Hide status ips"
+msgstr "Masquer l'état des adresses IP"
+
+#. Author URI of the plugin
+msgid "https://carmeloandres.com"
+msgstr "https://carmeloandres.com"
+
+#. URI of the plugin
+msgid "https://gesimatic.com/wordpress/plugin/gesimatic-login-attempts"
+msgstr "https://gesimatic.com/wordpress/plugin/gesimatic-login-attempts"
+
+#: includes/Translations/Translations.php:52
+msgid "Initial lockout period"
+msgstr "Durée initiale du verrouillage"
+
+#: includes/Translations/Translations.php:59
+msgid "Intentos y bloqueos de toda la red."
+msgstr "Tentatives et blocages sur l'ensemble du réseau."
+
+#: includes/Translations/Translations.php:40
+msgid "items"
+msgstr "éléments"
+
+#: includes/Translations/Translations.php:26
+msgid "Last attempt"
+msgstr "Dernière tentative"
+
+#: includes/Core/Core.php:202
+msgid "Loged as"
+msgstr "Connecté en tant que"
+
+#: includes/Admin/Admin.php:36
+msgid "Login attempts"
+msgstr "Tentatives de connexion"
+
+#: includes/Core/Core.php:265
+msgid ""
+"Login attempts from your IP address have been blocked due to security "
+"reasons."
+msgstr ""
+"Les tentatives de connexion depuis votre adresse IP ont été bloquées pour "
+"des raisons de sécurité."
+
+#: includes/Translations/Translations.php:32
+msgid "min"
+msgstr "min"
+
+#: includes/Translations/Translations.php:53
+msgid "Minutes of initial lockout period"
+msgstr "Minutes de la période initiale de verrouillage"
+
+#: includes/Translations/Translations.php:54
+msgid "Multiplier of the period of block"
+msgstr "Multiplicateur de la période de blocage"
+
+#: includes/Translations/Translations.php:55
+msgid ""
+"Multiplier to increase the blocking period in successive blocks, without "
+"resetting."
+msgstr ""
+"Multiplicateur pour augmenter la durée de blocage lors de blocages "
+"successifs, sans réinitialisation."
+
+#: includes/Translations/Translations.php:27
+msgid "Next lock period"
+msgstr "Prochaine période de verrouillage"
+
+#: includes/Translations/Translations.php:42
+msgid "of"
+msgstr "de"
+
+#: includes/Translations/Translations.php:21
+msgid "Performing the action.. Please wait"
+msgstr "Exécution de l'action... Veuillez patienter"
+
+#: includes/Translations/Translations.php:13
+msgid "Reset"
+msgstr "Réinitialiser"
+
+#: includes/Translations/Translations.php:11
+msgid "Reset ip"
+msgstr "Réinitialiser l'IP"
+
+#: includes/Translations/Translations.php:47
+msgid "Settings"
+msgstr "Paramètres"
+
+#: includes/Api/SetLoginAttemptsSettings.php:126
+msgid "Settings updated successfully"
+msgstr "Paramètres mis à jour avec succès"
+
+#: includes/Translations/Translations.php:49
+msgid "Show settings"
+msgstr "Afficher les paramètres"
+
+#: includes/Translations/Translations.php:62
+msgid "Show status ips"
+msgstr "Afficher l'état des adresses IP"
+
+#: includes/Translations/Translations.php:28
+msgid "State"
+msgstr "État"
+
+#: includes/Translations/Translations.php:58
+msgid "Status ips"
+msgstr "Statut des adresses IP"
+
+#: includes/Translations/Translations.php:22
+msgid "The action has been performed correctly"
+msgstr "Action effectuée avec succès."
+
+#: includes/Translations/Translations.php:23
+msgid "The action has not been performed correctly"
+msgstr "L'action n'a pas été effectuée correctement."
+
+#: includes/Translations/Translations.php:19
+msgid "The information has been obtained correctly"
+msgstr "Les informations ont été récupérées correctement."
+
+#: includes/Translations/Translations.php:44
+msgid "The information has been updated successfull"
+msgstr "Les informations ont été mises à jour avec succès."
+
+#: includes/Translations/Translations.php:45
+msgid "The information has not been updated"
+msgstr "Les informations n'ont pas été mises à jour."
+
+#: includes/Translations/Translations.php:31
+msgid "There are no status ips to show"
+msgstr "Aucun statut d'adresse IP à afficher."
+
+#: includes/Admin/Admin.php:127
+msgid "There has been an error, the component did not render."
+msgstr "Une erreur est survenue : le composant n'a pas pu être rendu."
+
+#: includes/Translations/Translations.php:63
+msgid ""
+"This plugin temporarily stores the IP addresses of failed login attempts to "
+"prevent brute-force attacks. IPs are automatically deleted after a "
+"successful login. We recommend including this information in your Privacy "
+"Policy."
+msgstr ""
+"Ce plugin stocke temporairement les adresses IP des tentatives de connexion "
+"échouées pour prévenir les attaques par force brute. Les adresses IP sont "
+"supprimées automatiquement après une connexion réussie. Nous recommandons "
+"d'inclure cette information dans votre politique de confidentialité."
+
+#: includes/Core/Core.php:203
+msgid "This user is"
+msgstr "Cet utilisateur est"
+
+#: includes/Core/Core.php:261
+msgid "Unable to verify your IP address."
+msgstr "Impossible de vérifier votre adresse IP."
+
+#: includes/Translations/Translations.php:14
+msgid "Unlock"
+msgstr "Débloquer"
+
+#: includes/Translations/Translations.php:12
+msgid "Unlock ip"
+msgstr "Débloquer l'adresse IP"
+
+#: includes/Translations/Translations.php:57
+msgid "Update settings"
+msgstr "Mettre à jour les paramètres"
+
+#: includes/Translations/Translations.php:43
+msgid "Updating information.. Please wait"
+msgstr "Mise à jour des informations... Veuillez patienter"
+
+#: includes/Translations/Translations.php:24
+msgid "User login"
+msgstr "Connexion utilisateur"
+
+#: includes/Core/Core.php:202
+msgid "user, from IP:"
+msgstr "utilisateur, depuis l'adresse IP :"
+
+#: includes/Admin/Admin.php:120
+msgid "You do not have sufficient permissions to access this page."
+msgstr ""
+"Vous n'avez pas les autorisations nécessaires pour accéder à cette page."
