@@ -98,7 +98,7 @@ class Core {
 
 
         // checks if the ip is not bloqued
-        add_filter('authenticate', array($this,'validate_ip'),5,3);
+        add_filter('authenticate', array($this,'validate_ip'),99,3);
 
         // add to block the access to the ip blocked
         add_filter('login_message', array($this,'login_message'),10,1);

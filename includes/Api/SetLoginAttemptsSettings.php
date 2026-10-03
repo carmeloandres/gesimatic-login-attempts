@@ -67,15 +67,21 @@ class SetLoginAttemptsSettings implements ActionInterface{
 //                    error_log ('SetLoginAttemptsSettings validate, $sanitized_params: '.var_export($sanitized_params,true));
 
             // validate triggerRoles
-            if(isset($settings['triggerRoles']) && is_array($settings['triggerRoles'])) {
-                foreach($settings['triggerRoles'] as $index => $role)
-                    $sanitized_params['triggerRoles'][$index] = sanitize_text_field($settings['triggerRoles'][$index]);
-                if ( ! self::validate_trigger_roles($sanitized_params['triggerRoles'])) return false;
-            }else return false;
+            if (!isset($settings['triggerRoles']) || !is_array($settings['triggerRoles'])) {
+                return false;
+            }
 
-//                    error_log ('SetLoginAttemptsSettings validate, $sanitized_params: '.var_export($sanitized_params,true));
+            $sanitized_params['triggerRoles'] = [];
 
-            } else return false;
+            foreach ($settings['triggerRoles'] as $index => $role) {
+                $sanitized_params['triggerRoles'][$index] = sanitize_text_field($role);
+            }
+
+            if (!self::validate_trigger_roles($sanitized_params['triggerRoles'])) {
+                return false;
+            }
+
+        } else return false;
 
 
         return $sanitized_params;
