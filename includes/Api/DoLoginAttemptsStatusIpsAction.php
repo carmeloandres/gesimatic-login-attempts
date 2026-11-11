@@ -79,16 +79,24 @@ class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
         error_log ('DoLoginAttemptsStatusIpsAction handle, $validated: '.var_export($validated,true));
 
         if (is_array($validated)){
+            $success = true;
+
             foreach($validated['ids'] as $id){
                 if ($validated['doAction'] == 'reset'){
-                    $wpdb->delete(LoginAttemptsRepository::table_name(),array('id' => $id));
+                    if ($wpdb->delete(LoginAttemptsRepository::table_name(),array('id' => $id)) === false) {
+                        $success = false;
+                    }
                 } else {
                     $status = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . LoginAttemptsRepository::table_name() . " WHERE id = %d", (int) $id ), ARRAY_A );
 
                     if ( is_array( $status ) ) {
                         $status['lockUntil'] = 0;
                         $status['status'] = 'enabled';
-                        $wpdb->update(LoginAttemptsRepository::table_name(),$status,array('id' => $id));
+                        if ($wpdb->update(LoginAttemptsRepository::table_name(),$status,array('id' => $id)) === false) {
+                            $success = false;
+                        }
+                    } elseif ($wpdb->last_error !== '') {
+                        $success = false;
                     }
                 }
             }
@@ -96,7 +104,7 @@ class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
 
         } else return ['success' => false];
 
-        return ['success' => true];
+        return ['success' => $success];
     }
 
 

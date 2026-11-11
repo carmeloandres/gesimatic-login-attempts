@@ -117,6 +117,22 @@ class Security
     }
 
     /**
+     * Unlocks all expired IP blocks and invalidates cached blocking results.
+     *
+     * @return bool Whether the expired blocks were successfully processed.
+     */
+    public static function unlock_expired_ips(): bool
+    {
+        if (!LoginAttemptsRepository::unlock_expired_ips(time())) {
+            return false;
+        }
+
+        self::clear_request_cache();
+
+        return true;
+    }
+
+    /**
      * Validates and returns the canonical representation of an IP address.
      */
     public static function normalize_ip(mixed $ip): ?string

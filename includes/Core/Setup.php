@@ -48,7 +48,11 @@ class Setup {
         
         $wpdb->query($query);
 
-        OptionManager::delete(Config::OPTION_SETTINGS);
+        if (is_multisite()) {
+            delete_site_option(Config::OPTION_SETTINGS);
+        } else {
+            delete_option(Config::OPTION_SETTINGS);
+        }
 
      }
 

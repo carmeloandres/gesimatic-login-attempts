@@ -107,6 +107,10 @@ class GetLoginAttemptsStatusIps extends Setup implements ActionInterface{
 
         if (is_array($params)){
 
+            if (!Security::unlock_expired_ips()) {
+                return ['success' => false];
+            }
+
             $result = array();
 
 

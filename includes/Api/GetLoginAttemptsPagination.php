@@ -9,6 +9,7 @@ use Gesimatic\Api\Base\CommonResponse;
 use GesimaticLoginAttempts\Core\Setup;
 use GesimaticLoginAttempts\Core\Config;
 use GesimaticLoginAttempts\Repositories\LoginAttemptsRepository;
+use GesimaticLoginAttempts\Security\Security;
 
 /**
  * Class Setup
@@ -62,6 +63,10 @@ class GetLoginAttemptsPagination extends Setup implements ActionInterface{
         error_log ('GetLoginAttemptsPagination handle, $validated: '.var_export($validated,true));
 
         if (is_array($validated)){
+
+            if (!Security::unlock_expired_ips()) {
+                return ['success' => false];
+            }
 
         	$filterStatus = '';
 			if ($validated['filterStatus'] != '')

@@ -66,22 +66,6 @@ class Core {
         // Loads the code using this hook
         add_action('plugins_loaded', [$this, 'init'], 0);
 
-        // To register the gesimatic-login-attempts admin page
-//        add_action('admin_menu',[$this,'register_admin_page']);
-
-        // to load the smtp admin assets
-//        add_action('admin_enqueue_scripts',[$this,'admin_enqueue_assets'], 10, 1);
-
-        // Gesimatic menu highlighting using CSS/JS
-//        add_action( 'admin_head', [ $this, 'force_menu_highlight' ] );
-
-        // adding the login attempts to gesimatic admin page
-/*        add_filter( 'gesimatic_admin_tabs', function( $tabs ) {
-                $tabs['gesimatic-login-attempts'] = esc_html__( 'Login attempts', 'gesimatic-login-attempts' );
-            return $tabs;
-        });
-*/
-
         // adding protection to all plugins that requires the ip is not blocked
         add_filter('gesimatic_is_ip_blocked',function ($blocked, $ip) {
             return Security::is_ip_blocked($ip);
@@ -93,9 +77,8 @@ class Core {
         // enabling acces succes to all gesimatic apis
         add_action('gesimatic_api_permissions_success',[$this,'access_success'],10,1);
 
-        // adds the admin api actions
-//        add_filter('gesimatic_admin_actions',[$this,'register_gesimatic_login_attempts_api_actions']);
-
+        // Reject blocked IPs before checking the password.
+        add_filter('wp_authenticate_user',array($this, 'validate_ip_before_password'),10,2);
 
         // checks if the ip is not bloqued
         add_filter('authenticate', array($this,'validate_ip'),99,3);
@@ -246,27 +229,34 @@ class Core {
      */
     function validate_ip($user, $username, $password){
 
-        // to check previous errors
-        if (is_wp_error($user)) {
-           return $user;
-        }      
-
-            // Gesimatic Login Attempts uses REMOTE_ADDR by default. 
-            // If the site is behind Cloudflare or a reverse proxy, 
-            // The administrator must configure the appropriate IP discovery method.
+        // Gesimatic Login Attempts uses REMOTE_ADDR by default. 
+        // If the site is behind Cloudflare or a reverse proxy, 
+        // The administrator must configure the appropriate IP discovery method.
             
-            $ip = Security::get_client_ip();
+        $ip = Security::get_client_ip();
 
-            if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-                return new \WP_Error('invalid_ip',__('Unable to verify your IP address.', 'gesimatic-login-attempts'));
-            }
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return new \WP_Error('invalid_ip',__('Unable to verify your IP address.', 'gesimatic-login-attempts'));
+        }
 
-            if( Security::is_ip_blocked($ip)){
-                return new \WP_Error( 'blocked_ip', __( 'Login attempts from your IP address have been blocked due to security reasons.', 'gesimatic-login-attempts' ) ); 
-            }
+        if( Security::is_ip_blocked($ip)){
+            return new \WP_Error( 'blocked_ip', __( 'Login attempts from your IP address have been blocked due to security reasons.', 'gesimatic-login-attempts' ) ); 
+        }
 
         return $user;
 
+    }
+
+    /**
+     * Checks the client IP before WordPress verifies the password.
+     *
+     * @param \WP_User|\WP_Error $user Authentication candidate.
+     * @param string $password Password supplied for authentication.
+     * @return \WP_User|\WP_Error
+     */
+    public function validate_ip_before_password($user, $password)
+    {
+        return $this->validate_ip($user, '', $password);
     }
 
     /**

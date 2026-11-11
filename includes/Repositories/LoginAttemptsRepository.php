@@ -65,6 +65,27 @@ final class LoginAttemptsRepository
     }
 
     /**
+     * Unlocks all expired IP blocks in a single query.
+     *
+     * @param int $now Current Unix timestamp.
+     * @return bool Whether the query succeeded, including when no rows changed.
+     */
+    public static function unlock_expired_ips(int $now): bool
+    {
+        global $wpdb;
+
+        $query = $wpdb->prepare(
+            'UPDATE ' . self::table_name() . '
+            SET lockUntil = 0, status = %s
+            WHERE lockUntil > 0 AND lockUntil <= %d',
+            'enabled',
+            $now
+        );
+
+        return $wpdb->query($query) !== false;
+    }
+
+    /**
      * Deletes the network-wide status associated with an IP address.
      *
      * @param string $ip Normalized IP address.
