@@ -8,7 +8,7 @@
  *          nonce - the token to ensure the conection
  *          table - The table to get the pagination information.
  * Return:
- *          object success = {'items': number, 'pages' : number} fail = {} empty object
+ *          Pagination data; throws when the request fails or the response is invalid.
  */
 export const getPagination = async (restUrl, nonce, query ) => {
     // create the header with the nonce token
@@ -32,9 +32,19 @@ export const getPagination = async (restUrl, nonce, query ) => {
         body:apiData
     })
 
-    // recive the resquest from api and obtain the json data
-    if (resp.ok){
-        const data = await resp.json();
-        return data.success ? data : {items: 0, pages: 0};
-    } else return {items: 0, pages: 0}
+    if (!resp.ok) {
+        throw new Error('Unable to retrieve pagination');
+    }
+
+    const data = await resp.json();
+    const isCount = (value) => (
+        (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value)))
+        && Number.isSafeInteger(Number(value))
+        && Number(value) >= 0
+    );
+    if (data?.success !== true || !isCount(data.items) || !isCount(data.pages)) {
+        throw new Error('Invalid pagination response');
+    }
+
+    return {...data, items: Number(data.items), pages: Number(data.pages)};
 }

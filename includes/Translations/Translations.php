@@ -17,6 +17,7 @@ class Translations {
              'blocked' =>  __('blocked','gesimatic-login-attempts'),
              'getting_the_information' =>  __('Getting the information.. Please wait','gesimatic-login-attempts'),
              'the_information_has_been_obtained' =>  __('The information has been obtained correctly','gesimatic-login-attempts'),
+             'the_information_could_not_be_obtained' => __('The information could not be obtained. Please try again.', 'gesimatic-login-attempts'),
              'are_you_sure_to_apply_the_action' =>  __('Are you sure to apply the %s action.','gesimatic-login-attempts'),
              'performing_the_action' =>  __('Performing the action.. Please wait','gesimatic-login-attempts'),
              'the_action_has_been_performed_correctly' =>  __('The action has been performed correctly','gesimatic-login-attempts'),

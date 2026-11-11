@@ -76,6 +76,10 @@ class GetLoginAttemptsPagination extends Setup implements ActionInterface{
         
     $items = $wpdb->get_var( "SELECT COUNT(*) FROM " . LoginAttemptsRepository::table_name() . " " . $filterStatus );
 
+            if ($wpdb->last_error !== '' || $items === null) {
+                return ['success' => false];
+            }
+
 	        $pages = 0;
 			if (($items != NULL)){
 				$pages = intval($items) / intval(self::$per_page);

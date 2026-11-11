@@ -83,24 +83,17 @@ export const StatusIps = ({restUrl, nonce, isShown }) => {
 
         setAlert({class:'gsmtc-notice gsmtc-notice-warning',content:gt('getting_the_information','Getting the information.. Please wait')});
 
-        const status = await getStatusIps(restUrl,nonce, query);
+        try {
+            const status = await getStatusIps(restUrl, nonce, query);
+            const newPagination = await getPagination(restUrl, nonce, query);
 
+            setStatusIps(status.map(element => ({...element, action: false})));
+            setDataPagination(newPagination);
 
-        let newStatus = []
-        status.forEach(element => {
-            let newElement = {...element,action : false}
-            newStatus = [...newStatus,newElement]            
-        });
-        const newPagination = await getPagination(restUrl,nonce, query);
-
-        setStatusIps(newStatus);
-        setDataPagination(newPagination);
-
-        setAlert({class:'gsmtc-notice gsmtc-notice-success',content:gt('the_information_has_been_obtained','The information has been obtained correctly')})
-        setTimeout(() => {
-            setAlert({class:'gsmtc-notice-fade-out',content:gt('the_information_has_been_obtained','The information has been obtained correctly')});
-            setTimeout(() => {setAlert({class:'gsmtc-display-none',content:''})},1000);
-        },4000);
+            setAlert({class:'gsmtc-notice gsmtc-notice-success',content:gt('the_information_has_been_obtained','The information has been obtained correctly')});
+        } catch {
+            setAlert({class:'gsmtc-notice gsmtc-notice-error',content:gt('the_information_could_not_be_obtained','The information could not be obtained. Please try again.')});
+        }
     }, [restUrl, nonce, query])
 
     useEffect(() => {

@@ -148,6 +148,10 @@ class GetLoginAttemptsStatusIps extends Setup implements ActionInterface{
 
             $results = $wpdb->get_results($query, ARRAY_A);
 
+            if ($wpdb->last_error !== '' || !is_array($results)) {
+                return ['success' => false];
+            }
+
         error_log ('GetLoginAttemptsStatusIps handle, $results: '.var_export($results,true));
 
             //sending the rest time to unblock

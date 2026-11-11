@@ -46,19 +46,33 @@ class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
         // check if acction is as expected
         if(isset($params['action']) && ($params['action'] === self::ACTION)){
                 // validate doAction
-                if(isset($params['doAction']) ){
+                if(isset($params['doAction']) && is_string($params['doAction'])){
                     $sanitized_params['doAction'] = sanitize_text_field($params['doAction']);
                     if ( ! in_array($sanitized_params['doAction'],self::VALID_ACTIONS)) return false;
                 }else return false;
                 // validate ids
-                if(isset($params['ids']) ){
-                    $ids = json_decode($params['ids'], true);
+                if(isset($params['ids']) && is_string($params['ids'])){
+                    $ids = json_decode($params['ids']);
                     error_log ('DoLoginAttemptsStatusIpsAction validate, $ids: '.var_export($ids,true));
 
-                    if ( json_last_error() !== JSON_ERROR_NONE) return false;
-                    foreach($ids as $index => $id){
-                        $sanitized_params['ids'][$index] = sanitize_text_field($id);
-                        if ( (filter_var($sanitized_params['ids'][$index], FILTER_VALIDATE_INT) === false) || ( 0 >= (int) $sanitized_params['ids'][$index])) return false;
+                    if (json_last_error() !== JSON_ERROR_NONE || !is_array($ids) || $ids === []) {
+                        return false;
+                    }
+
+                    $sanitized_params['ids'] = [];
+
+                    foreach ($ids as $id) {
+                        if (!is_int($id) && !is_string($id)) {
+                            return false;
+                        }
+
+                        $id = filter_var($id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+                        if ($id === false) {
+                            return false;
+                        }
+
+                        $sanitized_params['ids'][] = $id;
                     }
                 }else return false;
 
@@ -90,9 +104,13 @@ class DoLoginAttemptsStatusIpsAction extends Setup implements ActionInterface{
                     $status = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM " . LoginAttemptsRepository::table_name() . " WHERE id = %d", (int) $id ), ARRAY_A );
 
                     if ( is_array( $status ) ) {
-                        $status['lockUntil'] = 0;
-                        $status['status'] = 'enabled';
-                        if ($wpdb->update(LoginAttemptsRepository::table_name(),$status,array('id' => $id)) === false) {
+                        if ($wpdb->update(
+                            LoginAttemptsRepository::table_name(),
+                            ['lockUntil' => 0, 'status' => 'enabled'],
+                            ['id' => $id],
+                            ['%d', '%s'],
+                            ['%d']
+                        ) === false) {
                             $success = false;
                         }
                     } elseif ($wpdb->last_error !== '') {

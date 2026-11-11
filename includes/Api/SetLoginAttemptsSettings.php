@@ -126,7 +126,14 @@ class SetLoginAttemptsSettings implements ActionInterface{
 
         if (is_array($settings)){
 
-            OptionManager::update(Config::OPTION_SETTINGS, $settings);
+            $updated = OptionManager::update(Config::OPTION_SETTINGS, $settings);
+
+            if (!$updated && OptionManager::get(Config::OPTION_SETTINGS) !== $settings) {
+                return [
+                    'success' => false,
+                    'message' => __('Failed to update settings', 'gesimatic-login-attempts'),
+                ];
+            }
 
             $data['success'] = true;
             $data['message'] = __('Settings updated successfully', 'gesimatic-login-attempts');

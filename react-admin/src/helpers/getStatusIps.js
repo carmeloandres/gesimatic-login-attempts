@@ -8,7 +8,7 @@
  *          nonce - the token to ensure the conection
  *          query - an object with the query options,  structure -> {page : 1, orderAttempts : '', orderLockPeriod: '', orderLastAttempt: '', filterStatus : ''}
  * Return:
- *          object success = the requested data, fail = empty object
+ *          Array of records; throws when the request fails or the response is invalid.
  */
 export const getStatusIps = async (restUrl, nonce, query = {page : 1, orderAttempts : '', orderLockPeriod: '', orderLastAttempt: '', filterStatus : ''}) => {
     // create the header with the nonce token
@@ -28,9 +28,14 @@ export const getStatusIps = async (restUrl, nonce, query = {page : 1, orderAttem
         body:apiData
     })
 
-    // recive the resquest from api and obtain the json data
-    if (resp.ok){
-        const data = await resp.json();
-        return Array.isArray(data.statusIps) ? data.statusIps : [];
-    } else return []
+    if (!resp.ok) {
+        throw new Error('Unable to retrieve IP status');
+    }
+
+    const data = await resp.json();
+    if (data?.success !== true || !Array.isArray(data.statusIps)) {
+        throw new Error('Invalid IP status response');
+    }
+
+    return data.statusIps;
 }
